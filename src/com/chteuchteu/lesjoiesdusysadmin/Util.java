@@ -15,11 +15,21 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.os.Environment;
 import android.util.Log;
 
 public final class Util {
 	private Util() { }
+	
+	@SuppressLint("InlinedApi")
+	public static int getActionBarHeight(Context c) {
+		final TypedArray styledAttributes = c.getTheme().obtainStyledAttributes(
+				new int[] { android.R.attr.actionBarSize });
+		int height = (int) styledAttributes.getDimension(0, 0);
+		styledAttributes.recycle();
+		return height;
+	}
 	
 	public static void saveGifs(Activity a, List<Gif> gifs) {
 		String str = "";
@@ -107,7 +117,7 @@ public final class Util {
 		}
 	}
 	
-	public static void createLJDCDirectory() {
+	public static void createLJDSYDirectory() {
 		File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/lesJoiesDuSysadmin/");
 		if (!dir.exists())
 			dir.mkdirs();
@@ -192,9 +202,11 @@ public final class Util {
 	}
 	
 	public static Gif getGifFromGifUrl(List<Gif> l, String u) {
-		for (Gif g : l) {
-			if (g.urlGif.equals(u))
-				return g;
+		if (l != null) {
+			for (Gif g : l) {
+				if (g.urlGif.equals(u))
+					return g;
+			}
 		}
 		return null;
 	}

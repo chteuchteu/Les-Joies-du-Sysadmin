@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Les Joies du Sysadmin</string>
-	<string name="about">les Joies du Sysadmin est un tumblr édité par XXXXX\n\ncette application n\'est pas officielle\n\nles gifs présentés dans cette application sont proposés par la communauté sur lesjoiesdusysadmin.tumblr.com\n\ncette application ne fait qu\'afficher ces derniers</string>
+	<string name="about">les Joies du Sysadmin est un tumblr édité par XXXXX,\ninspiré des Joies du Code\n\ncette application n\'est pas officielle\n\nles gifs présentés dans cette application sont proposés par la communauté sur lesjoiesdusysadmin.tumblr.com\n\ncette application ne fait qu\'afficher ces derniers</string>
 	<string name="first_disclaimer">bienvenue dans l\'application non officielle des Joies du Sysadmin !\n\nveuillez patienter pendant le premier telechargement des gifs\n\n</string>
 	<string name="first_disclaimer_notifs"> activer les notifications</string>
 	<string name="first_disclaimer_notifs2"> precharger les gifs</string>

@@ -84,6 +84,12 @@ public class Activity_Main extends Activity {
 		gifs = new ArrayList<Gif>();
 		loaded = false;
 		
+		Util.createLJDSYDirectory();
+		getGifs();
+		if (Util.removeUncompleteGifs(a, gifs))
+			getGifs();
+		Util.removeOldGifs(gifs);
+		
 		if (Util.getPref(this, "first_disclaimer").equals("")) {
 			Util.setPref(this, "first_disclaimer", "true");
 			final LinearLayout l = (LinearLayout) findViewById(R.id.first_disclaimer);
@@ -206,10 +212,10 @@ public class Activity_Main extends Activity {
 					letsFetch = false;
 			}
 		}
-		if (letsFetch) {
+		if (!loaded)
 			getGifs();
+		if (letsFetch)
 			new parseFeed().execute();
-		}
 	}
 	
 	public class parseFeed extends AsyncTask<String, Integer, Void> {
@@ -398,7 +404,7 @@ public class Activity_Main extends Activity {
 			case R.id.menu_about:
 				final LinearLayout l = (LinearLayout) findViewById(R.id.about);
 				if (l.getVisibility() == View.GONE) {
-					setFont((ViewGroup) l, "SourceCodePro-Regular.ttf");
+					setFont((ViewGroup) l, "SortsMillGoudy-Regular.ttf");
 					l.setVisibility(View.VISIBLE);
 					AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
 					a.setDuration(500);

@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +35,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,10 +43,10 @@ public class Activity_Gif extends Activity {
 	private static Activity 	a;
 	private static Gif 			gif;
 	private static AsyncTask<Void, Integer, Void> downloadGifTh;
-	private static int 		oldImageCount;
 	private static WebView		wv;
 	private static boolean		textsShown = true;
 	
+	@SuppressWarnings("deprecation")
 	@SuppressLint({ "NewApi", "SetJavaScriptEnabled" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class Activity_Gif extends Activity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			ActionBar actionBar = getActionBar();
 			actionBar.setDisplayHomeAsUpEnabled(true);
-			actionBar.setTitle(" les_joies_du_code();");
+			actionBar.setTitle(" les Joies du Sysadmin");
 			//int c = Color.argb(140, 0, 0, 0);
 			int c = Color.argb(200, 12, 106, 179);
 			actionBar.setBackgroundDrawable(new ColorDrawable(c));
@@ -78,6 +78,30 @@ public class Activity_Gif extends Activity {
 		gif = Util.getGifFromGifUrl(Activity_Main.gifs, url);
 		
 		header_nom.setText(gif.nom);
+		if (header_nom.getText().toString().length() / 32 > 4) // nb lines
+			header_nom.setLineSpacing(-10, 1);
+		else if (header_nom.getText().toString().length() / 32 > 6)
+			header_nom.setLineSpacing(-25, 1);
+		
+		wv = (WebView) findViewById(R.id.wv);
+		wv.getSettings().setAllowFileAccess(true);
+		wv.getSettings().setJavaScriptEnabled(true);
+		wv.getSettings().setBuiltInZoomControls(false);
+		wv.setHorizontalScrollBarEnabled(false);
+		wv.setVerticalScrollBarEnabled(false);
+		wv.setVerticalFadingEdgeEnabled(false);
+		wv.setHorizontalFadingEdgeEnabled(false);
+		wv.setBackgroundColor(0x00000000);
+		int marginTop = 0;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+			marginTop += Util.getActionBarHeight(this);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+			marginTop += Util.getActionBarHeight(this) / 2;
+		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+		lp.setMargins(0, marginTop, 0, 0);
+		wv.setLayoutParams(lp);
+		
+		if (marginTop != 0)	wv.setPadding(0, marginTop, 0, 0);
 		
 		TextView gif_precedent = (TextView) findViewById(R.id.gif_precedent);
 		TextView gif_suivant = (TextView) findViewById(R.id.gif_suivant);
@@ -86,8 +110,6 @@ public class Activity_Gif extends Activity {
 			gif_precedent.setVisibility(View.GONE);
 		if (pos == Activity_Main.gifs.size()-1)
 			gif_suivant.setVisibility(View.GONE);
-		gif_precedent.setText(Html.fromHtml("<font color='#222222'>gifPrecedent(</font><font color='#8441FF'>CURRENT_GIF--</font><font color='#222222'>);</font><font color='#00b800'> // GIFs plus recents</font>"), TextView.BufferType.SPANNABLE);
-		gif_suivant.setText(Html.fromHtml("gifSuivant(</font><font color='#8441FF'>CURRENT_GIF++</font><font color='#222222'>);</font><font color='#00b800'> // GIFs plus anciens</font>"), TextView.BufferType.SPANNABLE);
 		gif_precedent.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -103,8 +125,7 @@ public class Activity_Gif extends Activity {
 		
 		header_nom.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
 		
-		setFont((ViewGroup) findViewById(R.id.actions_container), "SourceCodePro-Regular.ttf");
-		setFont((ViewGroup) findViewById(R.id.gif_container), "SourceCodePro-Regular.ttf");
+		setFont(findViewById(R.id.header_nom), "SortsMillGoudy-Regular.ttf");
 		
 		
 		File photo = new File(Util.getEntiereFileName(gif, false));
@@ -112,26 +133,9 @@ public class Activity_Gif extends Activity {
 			downloadGifTh = new downloadGif();
 			downloadGifTh.execute();
 		} else {
-			wv = new WebView(a);
-			wv.getSettings().setAllowFileAccess(true);
-			wv.getSettings().setJavaScriptEnabled(true);
-			wv.getSettings().setBuiltInZoomControls(false);
-			wv.setHorizontalScrollBarEnabled(false);
-			wv.setVerticalScrollBarEnabled(false);
-			wv.setVerticalFadingEdgeEnabled(false);
-			wv.setHorizontalFadingEdgeEnabled(false);
-			wv.setBackgroundColor(0x00000000);
 			String imagePath = Util.getEntiereFileName(gif, true);
 			wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 			wv.setVisibility(View.GONE);
-			
-			LinearLayout ll = (LinearLayout) a.findViewById(R.id.gifContainer);
-			for (int i=0; i<ll.getChildCount(); i++) {
-				View v = ll.getChildAt(i);
-				if (v instanceof WebView)
-					ll.removeViewAt(i);
-			}
-			((ViewGroup) ll).addView(wv, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 			
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 				wv.setWebViewClient(new WebViewClient() {
@@ -147,6 +151,17 @@ public class Activity_Gif extends Activity {
 			} else
 				wv.setVisibility(View.VISIBLE);
 		}
+		
+		wv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				toggleTexts();
+			}
+		});
+		
+		int c = Color.argb(256, 12, 106, 179);
+		findViewById(R.id.actions_left).setBackgroundDrawable(new ColorDrawable(c));
+		findViewById(R.id.actions_right).setBackgroundDrawable(new ColorDrawable(c));
 	}
 	
 	private void switchGif(String which) {
@@ -294,31 +309,11 @@ public class Activity_Gif extends Activity {
 				try {
 					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_COMPLETE;
 					Util.saveGifs(a, Activity_Main.gifs);
-					////GifMovieView view = new GifMovieView(a, stream);
-					//GifDecoderView view = new GifDecoderView(a, stream);
-					////GifWebView view = new GifWebView(a, "file:///android_asset/piggy.gif");
 					
-					wv = new WebView(a);
-					wv.getSettings().setAllowFileAccess(true);
-					wv.getSettings().setJavaScriptEnabled(true);
-					wv.getSettings().setBuiltInZoomControls(false);
-					wv.setHorizontalScrollBarEnabled(false);
-					wv.setVerticalScrollBarEnabled(false);
-					wv.setVerticalFadingEdgeEnabled(false);
-					wv.setHorizontalFadingEdgeEnabled(false);
-					wv.setBackgroundColor(0x00000000);
 					wv.setVisibility(View.GONE);
 					
 					String imagePath = Util.getEntiereFileName(gif, true);
 					wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
-					
-					LinearLayout ll = (LinearLayout) a.findViewById(R.id.gifContainer);
-					for (int i=0; i<ll.getChildCount(); i++) {
-						View v = ll.getChildAt(i);
-						if (v instanceof WebView)
-							ll.removeViewAt(i);
-					}
-					((ViewGroup) ll).addView(wv, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 					
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 						wv.setWebViewClient(new WebViewClient() {
@@ -377,36 +372,26 @@ public class Activity_Gif extends Activity {
 			case R.id.menu_refresh:
 				if (downloadGifTh != null)
 					downloadGifTh.cancel(true);
-				File photo = new File(Util.getEntiereFileName(gif, false));
-				if (photo.exists())
-					photo.delete();
+				File cached = new File(Util.getEntiereFileName(gif, false));
+				if (cached.exists())
+					cached.delete();
 				downloadGifTh = new downloadGif();
-				final LinearLayout rl = (LinearLayout) a.findViewById(R.id.gifContainer);
 				
-				oldImageCount = 0;
-				for (int i=0; i<rl.getChildCount(); i++) {
-					/*if (rl.getChildAt(i) instanceof GifDecoderView) {
-						oldImageCount = i; break;
-					}*/ // TODO 
-				}
-				if (rl.getChildCount() > 1) {
-					AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
-					an.setDuration(150);
-					an.setFillAfter(true);
-					an.setAnimationListener(new AnimationListener() {
-						@Override
-						public void onAnimationStart(Animation animation) { }
-						@Override
-						public void onAnimationRepeat(Animation animation) { }
-						
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							rl.removeViewAt(oldImageCount);
-							((ProgressBar) a.findViewById(R.id.pb)).setVisibility(View.VISIBLE);
-						}
-					});
-					rl.getChildAt(oldImageCount).startAnimation(an);
-				}
+				AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
+				an.setDuration(150);
+				an.setFillAfter(true);
+				an.setAnimationListener(new AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation animation) { }
+					@Override
+					public void onAnimationRepeat(Animation animation) { }
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						((ProgressBar) a.findViewById(R.id.pb)).setVisibility(View.VISIBLE);
+					}
+				});
+				wv.startAnimation(an);
+				
 				downloadGifTh.execute();
 				return true;
 			case R.id.menu_openwebsite:
@@ -421,6 +406,10 @@ public class Activity_Gif extends Activity {
 	public void setFont(ViewGroup g, String font) {
 		Typeface mFont = Typeface.createFromAsset(getAssets(), font);
 		setFont(g, mFont);
+	}
+	public void setFont(View v, String font) {
+		Typeface mFont = Typeface.createFromAsset(getAssets(), font);
+		((TextView) v).setTypeface(mFont);
 	}
 	public void setFont(ViewGroup group, Typeface font) {
 		int count = group.getChildCount();
