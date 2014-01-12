@@ -52,7 +52,8 @@ public final class Util {
 	public static String getSrcAttribute(String html) {
 		org.jsoup.nodes.Document doc = Jsoup.parse(html);
 		// jsoup : *= : contient la valeur (certains gifs sont sous la forme image.gif?3848483)
-		org.jsoup.nodes.Element img = doc.select("img[src*=.gif]").first();
+		//org.jsoup.nodes.Element img = doc.select("img[src*=.gif]").first();
+		org.jsoup.nodes.Element img = doc.select("img[src]").first();
 		if (img != null)
 			return img.attr("src");
 		return "";
@@ -99,25 +100,29 @@ public final class Util {
 	}
 	
 	public static void removeOldGifs(List<Gif> l) {
-		String path = Environment.getExternalStorageDirectory().toString() + "/lesJoiesDuSysadmin/";
-		File dir = new File(path);
-		File files[] = dir.listFiles();
-		if (files != null) {
-			List<File> toBeDeleted = new ArrayList<File>();
-			for (File f : files) {
-				boolean shouldBeDeleted = true;
-				for (Gif g : l) {
-					String fileName = getFileName(g).replaceAll("/", "");
-					if (f.getName().contains(fileName)) {
-						shouldBeDeleted = false; break;
+		if (l != null && l.size() > 10) {
+			String path = Environment.getExternalStorageDirectory().toString() + "/lesJoiesDuSysadmin/";
+			File dir = new File(path);
+			File files[] = dir.listFiles();
+			if (files != null) {
+				List<File> toBeDeleted = new ArrayList<File>();
+				for (File f : files) {
+					boolean shouldBeDeleted = true;
+					int max = 15;
+					if (l.size() < 15)	max = l.size();
+					for (int i=0; i<max; i++) {
+						String fileName = getFileName(l.get(i)).replaceAll("/", "");
+						if (f.getName().contains(fileName)) {
+							shouldBeDeleted = false; break;
+						}
 					}
+					if (shouldBeDeleted)
+						toBeDeleted.add(f);
 				}
-				if (shouldBeDeleted)
-					toBeDeleted.add(f);
-			}
-			for (File f : toBeDeleted) {
-				Log.v("deleting file...", f.getName());
-				f.delete();
+				for (File f : toBeDeleted) {
+					Log.v("deleting file...", f.getName());
+					f.delete();
+				}
 			}
 		}
 	}
@@ -199,7 +204,7 @@ public final class Util {
 	public static int getGifPos(Gif gif, List<Gif> l) {
 		int i = 0;
 		for (Gif g : l) {
-			if (g.nom.equals(gif.nom))
+			if (g.urlGif.equals(gif.urlGif))
 				return i;
 			i++;
 		}

@@ -54,6 +54,8 @@ public class Activity_Main extends Activity {
 	private boolean	notifsEnabled;
 	private boolean	notifsPreload;
 	
+	private int scrollY;
+	
 	@SuppressLint({ "InlinedApi", "NewApi" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +175,11 @@ public class Activity_Main extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
+		ListView l = (ListView) findViewById(R.id.gifs_list);
+		Log.v("", "Trying to restore scrollY : " + scrollY);
+		if (scrollY != 0)
+			l.scrollTo(l.getScrollX(), scrollY);
+		
 		launchUpdateIfNeeded();
 	}
 	
@@ -230,12 +237,13 @@ public class Activity_Main extends Activity {
 			pb.setIndeterminate(true);
 			pb.setProgress(0);
 			pb.setMax(100);
+			pb.setVisibility(View.VISIBLE);
 		}
 		
 		@Override
 		protected void onProgressUpdate(Integer... progress) {
 			super.onProgressUpdate(progress);
-			ProgressBar pb = ((ProgressBar) a.findViewById(R.id.pb));
+			
 			if (findViewById(R.id.first_disclaimer).getVisibility() == View.VISIBLE)
 				((TextView) findViewById(R.id.ascii_loading)).setText(progress[0] + "%");
 			else {
@@ -248,7 +256,7 @@ public class Activity_Main extends Activity {
 		
 		@Override
 		protected Void doInBackground(String... url) {
-			List<Gif> l = new ArrayList<Gif>();
+			List<Gif> l = new ArrayList<Gif>(); // new gifs
 			try {
 				JumblrClient client = new JumblrClient("3TRQZe87tlv3jXHuF9AHtDydThIn1hDijFNLLhGEULVRRHpM3q", "4BpchUIeOkEFMAkNGiIKjpgG8sLVliKA8cgIFSa3JuQ6Ta0qNd");
 				Blog blog = client.blogInfo(tumblrUrl);
@@ -265,14 +273,21 @@ public class Activity_Main extends Activity {
 					for (Post p : posts) {
 						TextPost tp = (TextPost) p;
 						Gif g = new Gif();
-						g.date = Util.GMTDateToFrench3(tp.getDateGMT());
+						//g.date = Util.GMTDateToFrench3(tp.getDateGMT());
 						g.nom = tp.getTitle();
 						g.state = Gif.ST_EMPTY;
 						g.urlArticle = tp.getPostUrl();
 						// <p><p class="c1"><img alt="image" src="http://i.imgur.com/49DLfGd.gif"/></p>
 						g.urlGif = Util.getSrcAttribute(tp.getBody());
-						if (g.isValide() && Util.getGifFromPostUrl(gifs, g.urlArticle) == null)
+						if (g.isValide() && Util.getGifFromGifUrl(gifs, g.urlGif) == null) {
 							l.add(g);
+							Log.v("", "Adding " + g.nom);
+						} else {
+							if (! g.isValide())
+								Log.v("", "                [NOT VALID]  not adding " + g.nom);
+							else
+								Log.v("", "                  not adding " + g.nom);
+						}
 						progress++;
 						int percentage = (int)progress*100/nbPosts;
 						if (percentage > 100)
@@ -290,10 +305,10 @@ public class Activity_Main extends Activity {
 				return null;
 			if (gifs == null || (gifs != null && gifs.size() == 0) || (gifs != null && l.size() != gifs.size()) || (gifs != null && gifs.size() > 0 && !l.get(0).equals(gifs.get(0)))) {
 				needsUpdate = true;
-				gifs = l;
+				for (int i=l.size()-1; i>=0; i--) {
+					gifs.add(0, l.get(i));
+				}
 				Util.saveGifs(Activity_Main.this, gifs);
-			} else {
-				Log.v("", "not updated :(");
 			}
 			
 			return null;
@@ -301,7 +316,7 @@ public class Activity_Main extends Activity {
 		@SuppressLint("NewApi")
 		@Override
 		protected void onPostExecute(Void result) {
-			((ProgressBar) a.findViewById(R.id.pb)).setVisibility(View.GONE);
+			pb.setVisibility(View.GONE);
 			if (needsUpdate) {
 				// Populate listview
 				ListView l = (ListView) findViewById(R.id.gifs_list);
@@ -380,6 +395,8 @@ public class Activity_Main extends Activity {
 						TextView label = (TextView) view.findViewById(R.id.line_a);
 						Intent intent = new Intent(Activity_Main.this, Activity_Gif.class);
 						intent.putExtra("name", label.getText().toString());
+						scrollY = -((ListView) findViewById(R.id.gifs_list)).getChildAt(0).getTop();
+						Log.v("", "Saving scrollY : " + scrollY);
 						Gif g = Util.getGif(gifs, label.getText().toString());
 						if (g != null) {
 							intent.putExtra("url", g.urlGif);

@@ -173,10 +173,10 @@ public class Activity_Gif extends Activity {
 				wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 				
 				int pos = Util.getGifPos(gif, Activity_Main.gifs);
-				if (pos == 0)	findViewById(R.id.actions_left).setVisibility(View.GONE);
-				else			findViewById(R.id.actions_left).setVisibility(View.VISIBLE);
-				if (pos == Activity_Main.gifs.size()-1)		findViewById(R.id.actions_right).setVisibility(View.GONE);
-				else			findViewById(R.id.actions_right).setVisibility(View.VISIBLE);
+				if (pos == 0)	findViewById(R.id.gif_precedent).setVisibility(View.GONE);
+				else			findViewById(R.id.gif_precedent).setVisibility(View.VISIBLE);
+				if (pos == Activity_Main.gifs.size()-1)		findViewById(R.id.gif_suivant).setVisibility(View.GONE);
+				else			findViewById(R.id.gif_suivant).setVisibility(View.VISIBLE);
 				
 				((TextView) findViewById(R.id.header_nom)).setText(gif.nom);
 				
@@ -349,6 +349,13 @@ public class Activity_Gif extends Activity {
 			
 			finishedDownload = true;
 			
+			int pos = Util.getGifPos(gif, Activity_Main.gifs);
+			if (pos == 0)	a.findViewById(R.id.gif_precedent).setVisibility(View.GONE);
+			else			a.findViewById(R.id.gif_precedent).setVisibility(View.VISIBLE);
+			if (pos == Activity_Main.gifs.size()-1)		a.findViewById(R.id.gif_suivant).setVisibility(View.GONE);
+			else			a.findViewById(R.id.gif_suivant).setVisibility(View.VISIBLE);
+			((TextView) a.findViewById(R.id.header_nom)).setText(gif.nom);
+			
 			if (photo != null && photo.exists()) {
 				loaded = true;
 				currentlySwitching = SWITCH_UNKNOWN;
@@ -356,14 +363,8 @@ public class Activity_Gif extends Activity {
 					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_COMPLETE;
 					Util.saveGifs(a, Activity_Main.gifs);
 					
-					int pos = Util.getGifPos(gif, Activity_Main.gifs);
-					if (pos == 0)	a.findViewById(R.id.actions_left).setVisibility(View.GONE);
-					else			a.findViewById(R.id.actions_left).setVisibility(View.VISIBLE);
-					if (pos == Activity_Main.gifs.size()-1)		a.findViewById(R.id.actions_right).setVisibility(View.GONE);
-					else			a.findViewById(R.id.actions_right).setVisibility(View.VISIBLE);
-					((TextView) a.findViewById(R.id.header_nom)).setText(gif.nom);
-					wv.setVisibility(View.GONE);
 					
+					wv.setVisibility(View.GONE);
 					String imagePath = Util.getEntiereFileName(gif, true);
 					wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 					
