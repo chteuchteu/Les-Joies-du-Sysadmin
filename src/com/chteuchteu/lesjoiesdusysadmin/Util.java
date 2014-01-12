@@ -31,11 +31,6 @@ public final class Util {
 		return height;
 	}
 	
-	public static void recycleCachedFiles(int nb) {
-		// Param : nb files to keep
-		// TODO
-	}
-	
 	public static void saveGifs(Activity a, List<Gif> gifs) {
 		String str = "";
 		int i=0;
