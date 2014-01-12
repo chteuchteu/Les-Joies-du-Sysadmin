@@ -85,6 +85,7 @@ public class Activity_Main extends Activity {
 		loaded = false;
 		
 		Util.createLJDSYDirectory();
+		Util.recycleCachedFiles(15);
 		getGifs();
 		if (Util.removeUncompleteGifs(a, gifs))
 			getGifs();

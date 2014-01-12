@@ -42,9 +42,18 @@ import android.widget.Toast;
 public class Activity_Gif extends Activity {
 	private static Activity 	a;
 	private static Gif 			gif;
-	private static AsyncTask<Void, Integer, Void> downloadGifTh;
+	private AsyncTask<Void, Integer, Void> downloadGifTh;
 	private static WebView		wv;
-	private static boolean		textsShown = true;
+	private boolean		textsShown = true;
+	
+	private static boolean		finishedDownload = true;
+	private static boolean		loaded = false;
+	
+	private static int			SWITCH_UNKNOWN = -1;
+	private static int			SWITCH_NEXT = 1;
+	private static int			SWITCH_PREVIOUS = 0;
+	
+	private static int			currentlySwitching = SWITCH_UNKNOWN;
 	
 	@SuppressWarnings("deprecation")
 	@SuppressLint({ "NewApi", "SetJavaScriptEnabled" })
@@ -59,7 +68,7 @@ public class Activity_Gif extends Activity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			ActionBar actionBar = getActionBar();
 			actionBar.setDisplayHomeAsUpEnabled(true);
-			actionBar.setTitle(" les Joies du Sysadmin");
+			actionBar.setTitle(" Les Joies du Sysadmin");
 			//int c = Color.argb(140, 0, 0, 0);
 			int c = Color.argb(200, 12, 106, 179);
 			actionBar.setBackgroundDrawable(new ColorDrawable(c));
@@ -76,6 +85,9 @@ public class Activity_Gif extends Activity {
 				&& thisIntent.getExtras().containsKey("url"))
 			url = thisIntent.getExtras().getString("url");
 		gif = Util.getGifFromGifUrl(Activity_Main.gifs, url);
+		
+		if (url != null)
+			restoreActivity();
 		
 		header_nom.setText(gif.nom);
 		if (header_nom.getText().toString().length() / 32 > 4) // nb lines
@@ -113,94 +125,123 @@ public class Activity_Gif extends Activity {
 		gif_precedent.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				switchGif("previous");
+				switchGif(SWITCH_PREVIOUS);
 			}
 		});
 		gif_suivant.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				switchGif("next");
+				switchGif(SWITCH_NEXT);
 			}
 		});
 		
 		header_nom.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
+		wv.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
 		
 		setFont(findViewById(R.id.header_nom), "SortsMillGoudy-Regular.ttf");
 		
-		
-		File photo = new File(Util.getEntiereFileName(gif, false));
-		if (!photo.exists()) {
-			downloadGifTh = new downloadGif();
-			downloadGifTh.execute();
-		} else {
-			String imagePath = Util.getEntiereFileName(gif, true);
-			wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
-			wv.setVisibility(View.GONE);
-			
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-				wv.setWebViewClient(new WebViewClient() {
-					public void onPageFinished(WebView v, String u) {
-						wv.setVisibility(View.VISIBLE);
-						AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
-						a.setStartOffset(250);
-						a.setDuration(350);
-						a.setFillAfter(true);
-						wv.startAnimation(a);
-					}
-				});
-			} else
-				wv.setVisibility(View.VISIBLE);
-		}
-		
-		wv.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				toggleTexts();
-			}
-		});
 		
 		int c = Color.argb(256, 12, 106, 179);
 		findViewById(R.id.actions_left).setBackgroundDrawable(new ColorDrawable(c));
 		findViewById(R.id.actions_right).setBackgroundDrawable(new ColorDrawable(c));
 	}
 	
-	private void switchGif(String which) {
+	private void restoreActivity() {
+		textsShown = true;
+		finishedDownload = true;
+		loaded = false;
+		stopThread();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		loadGif();
+	}
+	
+	private void loadGif() {
+		if (!loaded) {
+			File photo = new File(Util.getEntiereFileName(gif, false));
+			stopThread();
+			wv.setVisibility(View.GONE);
+			if (!photo.exists()) {
+				downloadGifTh = new downloadGif();
+				downloadGifTh.execute();
+			} else {
+				String imagePath = Util.getEntiereFileName(gif, true);
+				wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
+				
+				int pos = Util.getGifPos(gif, Activity_Main.gifs);
+				if (pos == 0)	findViewById(R.id.actions_left).setVisibility(View.GONE);
+				else			findViewById(R.id.actions_left).setVisibility(View.VISIBLE);
+				if (pos == Activity_Main.gifs.size()-1)		findViewById(R.id.actions_right).setVisibility(View.GONE);
+				else			findViewById(R.id.actions_right).setVisibility(View.VISIBLE);
+				
+				((TextView) findViewById(R.id.header_nom)).setText(gif.nom);
+				
+				currentlySwitching = SWITCH_UNKNOWN;
+				
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+					wv.setWebViewClient(new WebViewClient() {
+						public void onPageFinished(WebView v, String u) {
+							wv.setVisibility(View.VISIBLE);
+							AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
+							a.setStartOffset(250);
+							a.setDuration(350);
+							a.setFillAfter(true);
+							wv.startAnimation(a);
+						}
+					});
+				} else
+					wv.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+	
+	private void switchGif(int which) {
 		if (textsShown) {
+			stopThread();
 			int pos = Util.getGifPos(gif, Activity_Main.gifs);
 			int targetPos = 0;
-			if (which.equals("next"))
-				targetPos = pos + 1;
-			else
+			if (currentlySwitching == SWITCH_NEXT && which == SWITCH_PREVIOUS)
 				targetPos = pos - 1;
-			
+			else if (currentlySwitching == SWITCH_PREVIOUS && which == SWITCH_NEXT)
+				targetPos = pos + 1;
+			else if (currentlySwitching == SWITCH_UNKNOWN) {
+				if (which == SWITCH_NEXT)
+					targetPos = pos + 1;
+				else
+					targetPos = pos - 1;
+			}
+			currentlySwitching = which;
+			// TODO
 			if (targetPos >= 0 && targetPos < Activity_Main.gifs.size()) {
-				Intent intent = new Intent(Activity_Gif.this, Activity_Gif.class);
-				intent.putExtra("name", Activity_Main.gifs.get(targetPos).nom);
-				intent.putExtra("fromName", gif.nom);
-				Gif g = Util.getGif(Activity_Main.gifs, Activity_Main.gifs.get(targetPos).nom);
-				if (g != null) {
-					if (downloadGifTh != null) {
-						downloadGifTh.cancel(true);
-						File photo = new File(Util.getEntiereFileName(gif, false));
-						if (photo.exists())
-							photo.delete();
-					}
-					intent.putExtra("url", g.urlGif);
-					intent.putExtra("fromUrl", gif.urlGif);
-					startActivity(intent);
-					setTransition("rightToLeft");
-					finish();
-				}
+				gif = Activity_Main.gifs.get(targetPos);
+				finishedDownload = false;
+				loaded = false;
+				loadGif();
 			}
 		}
 		else
 			toggleTexts();
 	}
 	
+	private void stopThread() {
+		if (downloadGifTh != null) {
+			downloadGifTh.cancel(true);
+			if (!finishedDownload) {
+				File photo = new File(Util.getEntiereFileName(gif, false));
+				if (photo.exists())
+					photo.delete();
+			}
+		}
+	}
+	
 	@SuppressLint("NewApi")
-	private static void toggleTexts() {
+	private void toggleTexts() {
 		TextView title = (TextView) a.findViewById(R.id.header_nom);
-		LinearLayout actions = (LinearLayout) a.findViewById(R.id.actions_container);
+		RelativeLayout actions = (RelativeLayout) a.findViewById(R.id.actions_container);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			AlphaAnimation a;
 			if (textsShown)
@@ -235,6 +276,7 @@ public class Activity_Gif extends Activity {
 			pb.setIndeterminate(true);
 			pb.setProgress(0);
 			pb.setMax(100);
+			finishedDownload = false;
 		}
 		
 		@Override
@@ -305,11 +347,21 @@ public class Activity_Gif extends Activity {
 		protected void onPostExecute(Void result) {
 			pb.setVisibility(View.GONE);
 			
+			finishedDownload = true;
+			
 			if (photo != null && photo.exists()) {
+				loaded = true;
+				currentlySwitching = SWITCH_UNKNOWN;
 				try {
 					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_COMPLETE;
 					Util.saveGifs(a, Activity_Main.gifs);
 					
+					int pos = Util.getGifPos(gif, Activity_Main.gifs);
+					if (pos == 0)	a.findViewById(R.id.actions_left).setVisibility(View.GONE);
+					else			a.findViewById(R.id.actions_left).setVisibility(View.VISIBLE);
+					if (pos == Activity_Main.gifs.size()-1)		a.findViewById(R.id.actions_right).setVisibility(View.GONE);
+					else			a.findViewById(R.id.actions_right).setVisibility(View.VISIBLE);
+					((TextView) a.findViewById(R.id.header_nom)).setText(gif.nom);
 					wv.setVisibility(View.GONE);
 					
 					String imagePath = Util.getEntiereFileName(gif, true);
@@ -340,8 +392,10 @@ public class Activity_Gif extends Activity {
 	
 	@Override
 	public void onBackPressed() {
+		stopThread();
 		startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
 		setTransition("leftToRight");
+		finish();
 	}
 	
 	@Override
@@ -367,14 +421,13 @@ public class Activity_Gif extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
+				stopThread();
 				startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
+				finish();
 				return true;
 			case R.id.menu_refresh:
-				if (downloadGifTh != null)
-					downloadGifTh.cancel(true);
-				File cached = new File(Util.getEntiereFileName(gif, false));
-				if (cached.exists())
-					cached.delete();
+				stopThread();
+				
 				downloadGifTh = new downloadGif();
 				
 				AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
