@@ -147,8 +147,7 @@ public class Activity_Gif extends Activity {
 			}
 		});
 		
-		header_nom.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
-		wv.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
+		findViewById(R.id.onclick_catcher).setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
 		
 		setFont(findViewById(R.id.header_nom), "RobotoCondensed-Light.ttf");
 		setFont(findViewById(R.id.gif_precedent), "RobotoCondensed-Regular.ttf");

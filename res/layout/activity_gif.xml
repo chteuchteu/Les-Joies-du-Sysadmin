@@ -51,6 +51,12 @@
 			android:textSize="@dimen/header_title_fontsize" />
 	</LinearLayout>
 
+	<LinearLayout
+		android:id="@+id/onclick_catcher"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical" />
+
 	<RelativeLayout
 		android:id="@+id/actions_container"
 		android:layout_width="match_parent"
