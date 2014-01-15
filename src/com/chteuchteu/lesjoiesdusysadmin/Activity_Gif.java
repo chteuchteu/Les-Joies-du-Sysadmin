@@ -63,8 +63,7 @@ public class Activity_Gif extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.activity_gif);
 		TextView header_nom = (TextView) findViewById(R.id.header_nom);
 		
@@ -77,7 +76,7 @@ public class Activity_Gif extends Activity {
 		final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
 				new int[] { android.R.attr.actionBarSize });
 		contentPaddingTop += (int) styledAttributes.getDimension(0, 0);
-			
+		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			int id = getResources().getIdentifier("config_enableTranslucentDecor", "bool", "android");
 			if (id != 0 && getResources().getBoolean(id)) { // Translucent available
@@ -124,8 +123,7 @@ public class Activity_Gif extends Activity {
 		wv.setHorizontalFadingEdgeEnabled(false);
 		wv.setBackgroundColor(0x00000000);
 		int marginTop = 0;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			marginTop += Util.getActionBarHeight(this);
+		marginTop += Util.getActionBarHeight(this);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
 			marginTop += Util.getActionBarHeight(this) / 2;
 		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
@@ -201,19 +199,16 @@ public class Activity_Gif extends Activity {
 				
 				currentlySwitching = SWITCH_UNKNOWN;
 				
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-					wv.setWebViewClient(new WebViewClient() {
-						public void onPageFinished(WebView v, String u) {
-							wv.setVisibility(View.VISIBLE);
-							AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
-							a.setStartOffset(250);
-							a.setDuration(350);
-							a.setFillAfter(true);
-							wv.startAnimation(a);
-						}
-					});
-				} else
-					wv.setVisibility(View.VISIBLE);
+				wv.setWebViewClient(new WebViewClient() {
+					public void onPageFinished(WebView v, String u) {
+						wv.setVisibility(View.VISIBLE);
+						AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
+						a.setStartOffset(250);
+						a.setDuration(350);
+						a.setFillAfter(true);
+						wv.startAnimation(a);
+					}
+				});
 			}
 		}
 	}
@@ -265,25 +260,22 @@ public class Activity_Gif extends Activity {
 		}
 	}
 	
-	@SuppressLint("NewApi")
 	private void toggleTexts() {
 		TextView title = (TextView) a.findViewById(R.id.header_nom);
 		RelativeLayout actions = (RelativeLayout) a.findViewById(R.id.actions_container);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			AlphaAnimation a;
-			if (textsShown)
-				a = new AlphaAnimation(1.0f, 0.0f);
-			else
-				a = new AlphaAnimation(0.0f, 1.0f);
-			a.setDuration(250);
-			a.setFillAfter(true);
-			title.startAnimation(a);
-			actions.startAnimation(a);
-		} else {
-			int toBeShown = View.VISIBLE;
-			if (textsShown)	toBeShown = View.GONE;
-			title.setVisibility(toBeShown);
-		}
+		LinearLayout titleContainer = (LinearLayout) a.findViewById(R.id.header_nom_container);
+		
+		AlphaAnimation a;
+		if (textsShown)
+			a = new AlphaAnimation(1.0f, 0.0f);
+		else
+			a = new AlphaAnimation(0.0f, 1.0f);
+		a.setDuration(250);
+		a.setFillAfter(true);
+		title.startAnimation(a);
+		actions.startAnimation(a);
+		titleContainer.startAnimation(a);
+		
 		textsShown = !textsShown;
 	}
 	
@@ -369,7 +361,7 @@ public class Activity_Gif extends Activity {
 			return null;
 		}
 		
-		@SuppressLint({ "SetJavaScriptEnabled", "NewApi" })
+		@SuppressLint("SetJavaScriptEnabled")
 		@Override
 		protected void onPostExecute(Void result) {
 			pb.setVisibility(View.GONE);
@@ -395,19 +387,16 @@ public class Activity_Gif extends Activity {
 					String imagePath = Util.getEntiereFileName(gif, true);
 					wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 					
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-						wv.setWebViewClient(new WebViewClient() {
-							public void onPageFinished(WebView v, String u) {
-								wv.setVisibility(View.VISIBLE);
-								AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
-								a.setStartOffset(250);
-								a.setDuration(350);
-								a.setFillAfter(true);
-								wv.startAnimation(a);
-							}
-						});
-					} else
-						wv.setVisibility(View.VISIBLE);
+					wv.setWebViewClient(new WebViewClient() {
+						public void onPageFinished(WebView v, String u) {
+							wv.setVisibility(View.VISIBLE);
+							AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
+							a.setStartOffset(250);
+							a.setDuration(350);
+							a.setFillAfter(true);
+							wv.startAnimation(a);
+						}
+					});
 				}
 				catch (Exception ex) {
 					ex.printStackTrace();

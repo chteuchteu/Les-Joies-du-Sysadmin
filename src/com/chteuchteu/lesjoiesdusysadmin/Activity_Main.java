@@ -84,7 +84,7 @@ public class Activity_Main extends Activity {
 				new int[] { android.R.attr.actionBarSize });
 		contentPaddingTop += (int) styledAttributes.getDimension(0, 0);
 		styledAttributes.recycle();
-
+		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			int id = getResources().getIdentifier("config_enableTranslucentDecor", "bool", "android");
 			if (id != 0 && getResources().getBoolean(id)) { // Translucent available
