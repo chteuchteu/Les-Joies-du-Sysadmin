@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,7 +35,6 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -85,13 +83,13 @@ public class Activity_Gif extends Activity {
 				w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 				LinearLayout notifBarBG = (LinearLayout) findViewById(R.id.kitkat_actionbar_notifs);
 				notifBarBG.setBackgroundColor(actionBarColor);
-				notifBarBG.setLayoutParams(new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, getStatusBarHeight()));
+				notifBarBG.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, getStatusBarHeight()));
 				notifBarBG.setVisibility(View.VISIBLE);
 				contentPaddingTop += getStatusBarHeight();
 			}
 		}
 		if (contentPaddingTop != 0) {
-			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.setMargins(0, contentPaddingTop, 0, 0);
 			findViewById(R.id.actions_container).setLayoutParams(lp);
 		}
@@ -126,11 +124,8 @@ public class Activity_Gif extends Activity {
 		marginTop += Util.getActionBarHeight(this);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
 			marginTop += Util.getActionBarHeight(this) / 2;
-		RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-		lp.setMargins(0, marginTop, 0, 0);
-		wv.setLayoutParams(lp);
-		
-		if (marginTop != 0)	wv.setPadding(0, marginTop, 0, 0);
+		marginTop += 35; // Actions
+		((RelativeLayout.LayoutParams) findViewById(R.id.wv_container).getLayoutParams()).setMargins(0, marginTop, 0, 0);
 		
 		TextView gif_precedent = (TextView) findViewById(R.id.gif_precedent);
 		TextView gif_suivant = (TextView) findViewById(R.id.gif_suivant);
@@ -176,16 +171,13 @@ public class Activity_Gif extends Activity {
 	
 	private void loadGif() {
 		if (!loaded) {
-			Log.v("", "FileName : " + Util.getEntiereFileName(gif, false));
 			File photo = new File(Util.getEntiereFileName(gif, false));
 			stopThread();
 			wv.setVisibility(View.GONE);
 			if (!photo.exists()) {
-				Log.v("", "Downloading gif...");
 				downloadGifTh = new downloadGif();
 				downloadGifTh.execute();
 			} else {
-				Log.v("", "Loading gif from " + Util.getEntiereFileName(gif, true));
 				String imagePath = Util.getEntiereFileName(gif, true);
 				wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 				
