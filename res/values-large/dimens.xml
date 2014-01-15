@@ -1,0 +1,8 @@
+<resources>
+    
+    <dimen name="activity_horizontal_margin">25dp</dimen>
+    <dimen name="activity_vertical_margin">25dp</dimen>
+    <dimen name="gif_list_fontsize1">19sp</dimen>
+    <dimen name="header_title_fontsize">36sp</dimen>
+
+</resources>

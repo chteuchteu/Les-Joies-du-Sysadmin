@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +27,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -33,8 +36,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
@@ -50,9 +55,11 @@ public class Activity_Main extends Activity {
 	private static Activity 	a;
 	public static List<Gif> 	gifs;
 	public boolean		loaded;
+	private MenuItem	notifs;
+	private int			actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
+	
 	
 	private boolean	notifsEnabled;
-	private boolean	notifsPreload;
 	
 	private int scrollY;
 	
@@ -60,27 +67,43 @@ public class Activity_Main extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.activity_main);
 		
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ActionBar actionBar = getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled(false);
+		int contentPaddingTop = 0;
+		int contentPaddingBottom = 0;
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(false);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 			actionBar.setHomeButtonEnabled(false);
-			actionBar.setTitle(" Les Joies du Sysadmin");
-			//int c = Color.argb(140, 0, 0, 0);
-			int c = Color.argb(200, 12, 106, 179);
-			actionBar.setBackgroundDrawable(new ColorDrawable(c));
-			final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
-					new int[] { android.R.attr.actionBarSize });
+		actionBar.setTitle(" Les Joies du Sysadmin");
+		//int c = Color.argb(140, 0, 0, 0);
+		//int c = Color.argb(200, 12, 106, 179);
+		actionBar.setBackgroundDrawable(new ColorDrawable(actionBarColor));
+		final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
+				new int[] { android.R.attr.actionBarSize });
+		contentPaddingTop += (int) styledAttributes.getDimension(0, 0);
+		styledAttributes.recycle();
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			int id = getResources().getIdentifier("config_enableTranslucentDecor", "bool", "android");
+			if (id != 0 && getResources().getBoolean(id)) { // Translucent available
+				Window w = getWindow();
+				w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+				w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+				LinearLayout notifBarBG = (LinearLayout) findViewById(R.id.kitkat_actionbar_notifs);
+				notifBarBG.setBackgroundColor(actionBarColor);
+				notifBarBG.setLayoutParams(new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, getStatusBarHeight()));
+				notifBarBG.setVisibility(View.VISIBLE);
+				contentPaddingTop += getStatusBarHeight();
+				contentPaddingBottom += 150;
+			}
+		}
+		if (contentPaddingTop != 0) {
 			final ListView l = (ListView) findViewById(R.id.gifs_list);
-			int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
-			l.setPadding(0, actionBarHeight, 0, 0);
-			styledAttributes.recycle();
 			l.setClipToPadding(false);
-		} else
-			this.getWindow().getDecorView().setBackgroundColor(Color.WHITE);
+			l.setPadding(0, contentPaddingTop, 0, contentPaddingBottom);
+		}
 		
 		a = this;
 		gifs = new ArrayList<Gif>();
@@ -99,24 +122,10 @@ public class Activity_Main extends Activity {
 			findViewById(R.id.disclaimer_valider).setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (notifsEnabled) {
-						Util.setPref(a, "notifs", "true");
-						if (notifsPreload)
-							Util.setPref(a, "preload", "true");
-						else
-							Util.setPref(a, "preload", "false");
-						
-						int minutes = 180;
-						AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-						/*Intent i = new Intent(Activity_Main.this, NotificationService.class);
-						PendingIntent pi = PendingIntent.getService(Activity_Main.this, 0, i, 0);
-						am.cancel(pi);
-						am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-								SystemClock.elapsedRealtime() + minutes*60*1000,
-								minutes*60*1000, pi);*/
-					}
+					if (notifsEnabled)
+						enableNotifs();
 					else
-						Util.setPref(a, "notifs", "false");
+						disableNotifs();
 					AlphaAnimation a = new AlphaAnimation(1.0f, 0.0f);
 					a.setDuration(300);
 					a.setAnimationListener(new AnimationListener() {
@@ -131,38 +140,43 @@ public class Activity_Main extends Activity {
 				}
 			});
 			final TextView tv1 = (TextView) findViewById(R.id.disclaimer_notifs);
-			final TextView tv2 = (TextView) findViewById(R.id.disclaimer_notifs_preload);
 			
 			notifsEnabled = true;
-			notifsPreload = false;
 			tv1.setText("[X] " + getText(R.string.first_disclaimer_notifs));
-			tv2.setText("[   ] " + getText(R.string.first_disclaimer_notifs2));
 			
 			tv1.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (notifsEnabled) {
+					if (notifsEnabled)
 						tv1.setText("[   ] " + getText(R.string.first_disclaimer_notifs));
-						tv2.setVisibility(View.INVISIBLE);
-					}
-					else {
+					else
 						tv1.setText("[X] " + getText(R.string.first_disclaimer_notifs));
-						tv2.setVisibility(View.VISIBLE);
-					}
 					notifsEnabled = !notifsEnabled;
 				}
 			});
-			tv2.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (notifsPreload)
-						tv2.setText("[   ] " + getText(R.string.first_disclaimer_notifs2));
-					else
-						tv2.setText("[X] " + getText(R.string.first_disclaimer_notifs2));
-					notifsPreload = !notifsPreload;
-				}
-			});
 		}
+	}
+	
+	private void enableNotifs() {
+		Log.v("", "Enabling notifs");
+		Util.setPref(a, "notifs", "true");
+		
+		int minutes = 180;
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		Intent i = new Intent(Activity_Main.this, NotificationService.class);
+		PendingIntent pi = PendingIntent.getService(Activity_Main.this, 0, i, 0);
+		am.cancel(pi);
+		am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+				SystemClock.elapsedRealtime() + minutes*60*1000,
+				minutes*60*1000, pi);
+		if (notifs != null)
+			notifs.setChecked(true);
+	}
+	
+	private void disableNotifs() {
+		Util.setPref(a, "notifs", "false");
+		if (notifs != null)
+			notifs.setChecked(false);
 	}
 	
 	private void saveLastViewed() {
@@ -199,8 +213,7 @@ public class Activity_Main extends Activity {
 			l.startAnimation(a);
 		}
 		else if (findViewById(R.id.first_disclaimer).getVisibility() == View.VISIBLE) { }
-		else
-			super.onBackPressed();
+		// else : rien du tout, sinon y revient à Activity_Gif
 	}
 	
 	private void launchUpdateIfNeeded() {
@@ -418,10 +431,15 @@ public class Activity_Main extends Activity {
 				Util.setPref(this, "lastGifsListUpdate", "doitnow");
 				new parseFeed().execute("");
 				return true;
+			case R.id.notifications:
+				item.setChecked(!item.isChecked());
+				if (item.isChecked()) enableNotifs();
+				else disableNotifs();
+				return true;
 			case R.id.menu_about:
 				final LinearLayout l = (LinearLayout) findViewById(R.id.about);
 				if (l.getVisibility() == View.GONE) {
-					setFont((ViewGroup) l, "SortsMillGoudy-Regular.ttf");
+					setFont((ViewGroup) l, "Futura.ttf");
 					l.setVisibility(View.VISIBLE);
 					AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
 					a.setDuration(500);
@@ -487,7 +505,16 @@ public class Activity_Main extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
+		notifs = menu.findItem(R.id.notifications);
+		if (Util.getPref(this, "notifs").equals("true"))
+			notifs.setChecked(true);
 		return true;
 	}
 	
+	public int getStatusBarHeight() {
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0)
+			return getResources().getDimensionPixelSize(resourceId);
+		return 0;
+	}
 }

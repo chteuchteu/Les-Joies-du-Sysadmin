@@ -20,12 +20,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -34,6 +36,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -48,6 +51,7 @@ public class Activity_Gif extends Activity {
 	
 	private static boolean		finishedDownload = true;
 	private static boolean		loaded = false;
+	private int			actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
 	
 	private static int			SWITCH_UNKNOWN = -1;
 	private static int			SWITCH_NEXT = 1;
@@ -55,8 +59,7 @@ public class Activity_Gif extends Activity {
 	
 	private static int			currentlySwitching = SWITCH_UNKNOWN;
 	
-	@SuppressWarnings("deprecation")
-	@SuppressLint({ "NewApi", "SetJavaScriptEnabled" })
+	@SuppressLint({ "SetJavaScriptEnabled", "InlinedApi" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,17 +68,33 @@ public class Activity_Gif extends Activity {
 		setContentView(R.layout.activity_gif);
 		TextView header_nom = (TextView) findViewById(R.id.header_nom);
 		
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			ActionBar actionBar = getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled(true);
-			actionBar.setTitle(" Les Joies du Sysadmin");
-			//int c = Color.argb(140, 0, 0, 0);
-			int c = Color.argb(200, 12, 106, 179);
-			actionBar.setBackgroundDrawable(new ColorDrawable(c));
-			final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
-					new int[] { android.R.attr.actionBarSize });
-			int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
-			header_nom.setPadding(0, actionBarHeight, 0, 0);
+		int contentPaddingTop = 0;
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setTitle(" Les Joies du Sysadmin");
+		int c = actionBarColor;
+		actionBar.setBackgroundDrawable(new ColorDrawable(c));
+		final TypedArray styledAttributes = getApplicationContext().getTheme().obtainStyledAttributes(
+				new int[] { android.R.attr.actionBarSize });
+		contentPaddingTop += (int) styledAttributes.getDimension(0, 0);
+			
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			int id = getResources().getIdentifier("config_enableTranslucentDecor", "bool", "android");
+			if (id != 0 && getResources().getBoolean(id)) { // Translucent available
+				Window w = getWindow();
+				w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+				w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+				LinearLayout notifBarBG = (LinearLayout) findViewById(R.id.kitkat_actionbar_notifs);
+				notifBarBG.setBackgroundColor(actionBarColor);
+				notifBarBG.setLayoutParams(new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, getStatusBarHeight()));
+				notifBarBG.setVisibility(View.VISIBLE);
+				contentPaddingTop += getStatusBarHeight();
+			}
+		}
+		if (contentPaddingTop != 0) {
+			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			lp.setMargins(0, contentPaddingTop, 0, 0);
+			findViewById(R.id.actions_container).setLayoutParams(lp);
 		}
 		
 		a = this;
@@ -138,12 +157,9 @@ public class Activity_Gif extends Activity {
 		header_nom.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
 		wv.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
 		
-		setFont(findViewById(R.id.header_nom), "SortsMillGoudy-Regular.ttf");
-		
-		
-		int c = Color.argb(256, 12, 106, 179);
-		findViewById(R.id.actions_left).setBackgroundDrawable(new ColorDrawable(c));
-		findViewById(R.id.actions_right).setBackgroundDrawable(new ColorDrawable(c));
+		setFont(findViewById(R.id.header_nom), "RobotoCondensed-Light.ttf");
+		setFont(findViewById(R.id.gif_precedent), "RobotoCondensed-Regular.ttf");
+		setFont(findViewById(R.id.gif_suivant), "RobotoCondensed-Regular.ttf");
 	}
 	
 	private void restoreActivity() {
@@ -162,13 +178,16 @@ public class Activity_Gif extends Activity {
 	
 	private void loadGif() {
 		if (!loaded) {
+			Log.v("", "FileName : " + Util.getEntiereFileName(gif, false));
 			File photo = new File(Util.getEntiereFileName(gif, false));
 			stopThread();
 			wv.setVisibility(View.GONE);
 			if (!photo.exists()) {
+				Log.v("", "Downloading gif...");
 				downloadGifTh = new downloadGif();
 				downloadGifTh.execute();
 			} else {
+				Log.v("", "Loading gif from " + Util.getEntiereFileName(gif, true));
 				String imagePath = Util.getEntiereFileName(gif, true);
 				wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 				
@@ -215,12 +234,20 @@ public class Activity_Gif extends Activity {
 					targetPos = pos - 1;
 			}
 			currentlySwitching = which;
-			// TODO
+			
 			if (targetPos >= 0 && targetPos < Activity_Main.gifs.size()) {
 				gif = Activity_Main.gifs.get(targetPos);
 				finishedDownload = false;
 				loaded = false;
 				loadGif();
+				
+				if (!finishedDownload) {
+					if (targetPos == 0)	a.findViewById(R.id.gif_precedent).setVisibility(View.GONE);
+					else			a.findViewById(R.id.gif_precedent).setVisibility(View.VISIBLE);
+					if (targetPos == Activity_Main.gifs.size()-1)		a.findViewById(R.id.gif_suivant).setVisibility(View.GONE);
+					else			a.findViewById(R.id.gif_suivant).setVisibility(View.VISIBLE);
+					((TextView) a.findViewById(R.id.header_nom)).setText(gif.nom);
+				}
 			}
 		}
 		else
@@ -396,7 +423,6 @@ public class Activity_Gif extends Activity {
 		stopThread();
 		startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
 		setTransition("leftToRight");
-		finish();
 	}
 	
 	@Override
@@ -424,7 +450,6 @@ public class Activity_Gif extends Activity {
 			case android.R.id.home:
 				stopThread();
 				startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
-				finish();
 				return true;
 			case R.id.menu_refresh:
 				stopThread();
@@ -482,5 +507,12 @@ public class Activity_Gif extends Activity {
 			overridePendingTransition(R.anim.deeper_in, R.anim.deeper_out);
 		else if (level.equals("leftToRight"))
 			overridePendingTransition(R.anim.shallower_in, R.anim.shallower_out);
+	}
+	
+	public int getStatusBarHeight() {
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0)
+			return getResources().getDimensionPixelSize(resourceId);
+		return 0;
 	}
 }
