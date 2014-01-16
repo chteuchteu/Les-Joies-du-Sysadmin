@@ -163,8 +163,19 @@ public class NotificationService extends Service {
 				builder.setContentIntent(contentIntent);
 				NotificationManager nManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				nManager.notify(NOTIFICATION_ID, builder.build());
-			} else
-				Log.v("", ":(");
+			} else {
+				NotificationCompat.Builder builder =
+						new NotificationCompat.Builder(NotificationService.this)
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setContentTitle("Les Joies du Sysadmin")
+				.setContentText("Pas de nouveau gif");
+				int NOTIFICATION_ID = 1664;
+				Intent targetIntent = new Intent(NotificationService.this, Activity_Main.class);
+				PendingIntent contentIntent = PendingIntent.getActivity(NotificationService.this, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+				builder.setContentIntent(contentIntent);
+				NotificationManager nManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+				nManager.notify(NOTIFICATION_ID, builder.build());
+			}
 			stopSelf();
 		}
 	}

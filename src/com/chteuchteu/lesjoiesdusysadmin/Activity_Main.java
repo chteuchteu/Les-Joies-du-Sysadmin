@@ -44,6 +44,7 @@ import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.tjeannin.apprate.AppRate;
 import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Blog;
@@ -177,12 +178,12 @@ public class Activity_Main extends Activity {
 		.init();
 		
 		lv_gifs.post(new Runnable() {
-            @Override
-            public void run() {
-        		if (scrollY != 0)
-        			lv_gifs.setSelectionFromTop(scrollY, 0);
-            }
-        });
+			@Override
+			public void run() {
+				if (scrollY != 0)
+					lv_gifs.setSelectionFromTop(scrollY, 0);
+			}
+		});
 	}
 	
 	private void enableNotifs() {
@@ -530,5 +531,17 @@ public class Activity_Main extends Activity {
 		if (resourceId > 0)
 			return getResources().getDimensionPixelSize(resourceId);
 		return 0;
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance(this).activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance(this).activityStart(this);
 	}
 }

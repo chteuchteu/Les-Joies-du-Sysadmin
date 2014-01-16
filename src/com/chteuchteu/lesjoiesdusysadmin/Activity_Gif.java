@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -286,18 +288,18 @@ public class Activity_Gif extends Activity {
 			@Override public void onAnimationStart(Animation animation) { }
 			@Override public void onAnimationRepeat(Animation animation) { }
 			@Override
-            public void onAnimationEnd(Animation animation) {
+			public void onAnimationEnd(Animation animation) {
 				LinearLayout ll = (LinearLayout) findViewById(R.id.wv_container);
 				RelativeLayout act = (RelativeLayout) findViewById(R.id.actions_container);
 				if (textsShown)
 					ll.layout(ll.getLeft(), ll.getTop()+act.getHeight()/2, ll.getRight(), ll.getBottom());
 				else
 					ll.layout(ll.getLeft(), ll.getTop()-act.getHeight()/2, ll.getRight(), ll.getBottom());
-            }
-        });
-        anim.setFillEnabled(true);
-        anim.setFillAfter(false);
-        anim.setFillBefore(false);
+			}
+		});
+		anim.setFillEnabled(true);
+		anim.setFillAfter(false);
+		anim.setFillBefore(false);
 		findViewById(R.id.wv_container).startAnimation(anim);
 		
 		textsShown = !textsShown;
@@ -442,6 +444,8 @@ public class Activity_Gif extends Activity {
 	protected void onStop() {
 		super.onStop();
 		
+		EasyTracker.getInstance(this).activityStart(this);
+		
 		if (downloadGifTh != null) {
 			try {
 				downloadGifTh.cancel(false);
@@ -527,5 +531,11 @@ public class Activity_Gif extends Activity {
 		if (resourceId > 0)
 			return getResources().getDimensionPixelSize(resourceId);
 		return 0;
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance(this).activityStart(this);
 	}
 }
