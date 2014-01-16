@@ -44,7 +44,6 @@ import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import com.chteuchteu.dikkeneksoundboard.R;
 import com.tjeannin.apprate.AppRate;
 import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Blog;
@@ -307,15 +306,8 @@ public class Activity_Main extends Activity {
 						g.urlArticle = tp.getPostUrl();
 						// <p><p class="c1"><img alt="image" src="http://i.imgur.com/49DLfGd.gif"/></p>
 						g.urlGif = Util.getSrcAttribute(tp.getBody());
-						if (g.isValide() && Util.getGifFromGifUrl(gifs, g.urlGif) == null) {
+						if (g.isValide() && Util.getGifFromGifUrl(gifs, g.urlGif) == null)
 							l.add(g);
-							Log.v("", "Adding " + g.nom);
-						} else {
-							if (! g.isValide())
-								Log.v("", "                [NOT VALID]  not adding " + g.nom);
-							else
-								Log.v("", "                  not adding " + g.nom);
-						}
 						progress++;
 						int percentage = (int)progress*100/nbPosts;
 						if (percentage > 100)

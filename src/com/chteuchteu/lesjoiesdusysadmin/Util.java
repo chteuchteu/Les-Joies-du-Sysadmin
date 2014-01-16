@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Environment;
-import android.util.Log;
 
 public final class Util {
 	private Util() { }
@@ -114,10 +113,8 @@ public final class Util {
 					if (shouldBeDeleted)
 						toBeDeleted.add(f);
 				}
-				for (File f : toBeDeleted) {
-					Log.v("deleting file...", f.getName());
+				for (File f : toBeDeleted)
 					f.delete();
-				}
 			}
 		}
 	}

@@ -30,6 +30,7 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.TranslateAnimation;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -45,11 +46,12 @@ public class Activity_Gif extends Activity {
 	private static Gif 			gif;
 	private AsyncTask<Void, Integer, Void> downloadGifTh;
 	private static WebView		wv;
-	private boolean		textsShown = true;
+	private boolean			textsShown = true;
+	private float				deltaY;
 	
 	private static boolean		finishedDownload = true;
 	private static boolean		loaded = false;
-	private int			actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
+	private int					actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
 	
 	private static int			SWITCH_UNKNOWN = -1;
 	private static int			SWITCH_NEXT = 1;
@@ -125,7 +127,7 @@ public class Activity_Gif extends Activity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
 			marginTop += Util.getActionBarHeight(this) / 2;
 		marginTop += 35; // Actions
-		((RelativeLayout.LayoutParams) findViewById(R.id.wv_container).getLayoutParams()).setMargins(0, marginTop, 0, 0);
+		findViewById(R.id.wv_container).setPadding(0, marginTop, 0, 0);
 		
 		TextView gif_precedent = (TextView) findViewById(R.id.gif_precedent);
 		TextView gif_suivant = (TextView) findViewById(R.id.gif_suivant);
@@ -147,6 +149,11 @@ public class Activity_Gif extends Activity {
 			}
 		});
 		
+		findViewById(R.id.actions_container).post(new Runnable(){
+			public void run() {
+				deltaY = findViewById(R.id.actions_container).getHeight()/2;
+			}
+		});
 		findViewById(R.id.onclick_catcher).setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
 		
 		setFont(findViewById(R.id.header_nom), "RobotoCondensed-Light.ttf");
@@ -266,6 +273,31 @@ public class Activity_Gif extends Activity {
 		title.startAnimation(a);
 		actions.startAnimation(a);
 		titleContainer.startAnimation(a);
+		
+		// Put the gif a little bit higher
+		deltaY = findViewById(R.id.actions_container).getHeight()/2;
+		if (textsShown)
+			deltaY = -deltaY;
+		
+		TranslateAnimation anim = new TranslateAnimation(0, 0, 0, deltaY);
+		anim.setDuration(250);
+		anim.setAnimationListener(new AnimationListener() {
+			@Override public void onAnimationStart(Animation animation) { }
+			@Override public void onAnimationRepeat(Animation animation) { }
+			@Override
+            public void onAnimationEnd(Animation animation) {
+				LinearLayout ll = (LinearLayout) findViewById(R.id.wv_container);
+				RelativeLayout act = (RelativeLayout) findViewById(R.id.actions_container);
+				if (textsShown)
+					ll.layout(ll.getLeft(), ll.getTop()+act.getHeight()/2, ll.getRight(), ll.getBottom());
+				else
+					ll.layout(ll.getLeft(), ll.getTop()-act.getHeight()/2, ll.getRight(), ll.getBottom());
+            }
+        });
+        anim.setFillEnabled(true);
+        anim.setFillAfter(false);
+        anim.setFillBefore(false);
+		findViewById(R.id.wv_container).startAnimation(anim);
 		
 		textsShown = !textsShown;
 	}
