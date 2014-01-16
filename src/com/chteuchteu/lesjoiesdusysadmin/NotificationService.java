@@ -44,44 +44,6 @@ public class NotificationService extends Service {
 		new PollTask().execute();
 	}
 	
-	/*private boolean downloadGif(String urlGif, String urlArticle) {
-		InputStream input = null;
-		OutputStream output = null;
-		HttpURLConnection connection = null;
-		try {
-			URL url = new URL(urlGif);
-			connection = (HttpURLConnection) url.openConnection();
-			connection.connect();
-			
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
-				return false;
-			
-			input = connection.getInputStream();
-			output = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/lesJoiesDuCode/" + urlArticle.substring(urlArticle.lastIndexOf('/')) + ".gif");
-			
-			byte data[] = new byte[4096];
-			int count;
-			
-			while ((count = input.read(data)) != -1) {
-				output.write(data, 0, count);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		} finally {
-			try {
-				if (output != null)
-					output.close();
-				if (input != null)
-					input.close();
-			} catch (IOException ignored) { }
-			
-			if (connection != null)
-				connection.disconnect();
-		}
-		return true;
-	}*/
-	
 	private class PollTask extends AsyncTask<Void, Void, Void> {
 		int nbUnseenGifs = 0;
 		

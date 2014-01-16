@@ -38,6 +38,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +63,7 @@ public class Activity_Gif extends Activity {
 	
 	private static int			currentlySwitching = SWITCH_UNKNOWN;
 	private static boolean		fromWeb;
+	private ShareActionProvider mShareActionProvider;
 	
 	@SuppressLint({ "SetJavaScriptEnabled", "InlinedApi" })
 	@Override
@@ -489,9 +491,22 @@ public class Activity_Gif extends Activity {
 	}
 	
 	
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.gifs, menu);
+		
+		MenuItem item = menu.findItem(R.id.menu_share);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+			sharingIntent.setType("text/plain");
+			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Les Joies du Sysadmin");
+			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, gif.nom + " : " + gif.urlArticle);
+			mShareActionProvider.setShareIntent(sharingIntent);
+		}
+		else
+			item.setVisible(false);
 		
 		return true;
 	}
@@ -501,7 +516,7 @@ public class Activity_Gif extends Activity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				stopThread();
-				finish();
+				startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
 				setTransition("leftToRight");
 				return true;
 			case R.id.menu_refresh:

@@ -10,5 +10,6 @@
 	<string name="refresh">Rafraîchir</string>
 	<string name="about_menu">A propos de…</string>
 	<string name="menu_notifications">Notifications</string>
+	<string name="menu_share">Partager</string>
 
 </resources>
