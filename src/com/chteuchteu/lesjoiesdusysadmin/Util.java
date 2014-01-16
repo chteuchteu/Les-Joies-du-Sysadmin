@@ -83,6 +83,8 @@ public final class Util {
 	}
 	
 	public static String getFileName(Gif g) {
+		if (g == null || g.urlArticle == null || g.urlArticle.equals(""))
+			return "";
 		return g.urlArticle.substring(g.urlArticle.lastIndexOf('/'));
 	}
 	

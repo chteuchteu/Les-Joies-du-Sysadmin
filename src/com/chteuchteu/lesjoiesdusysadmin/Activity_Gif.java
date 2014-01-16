@@ -81,6 +81,11 @@ public class Activity_Gif extends Activity {
 			String uri = intent.getDataString();
 			if (Activity_Main.gifs == null || Activity_Main.gifs.size() == 0)
 				Activity_Main.gifs = Util.getGifs(this);
+			if (Activity_Main.gifs.size() == 0) {
+				Activity_Main.gifs = null;
+				// First launch while trying to open the app from web = no gif cached
+				startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
+			}
 			gif = Util.getGifFromWebUrl(Activity_Main.gifs, uri);
 			if (gif == null) {
 				fromWeb = false;
