@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -43,6 +44,8 @@ import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.chteuchteu.dikkeneksoundboard.R;
+import com.tjeannin.apprate.AppRate;
 import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Blog;
 import com.tumblr.jumblr.types.Post;
@@ -155,6 +158,19 @@ public class Activity_Main extends Activity {
 				}
 			});
 		}
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this)
+		.setTitle("Noter l'application")
+		.setIcon(R.drawable.ic_launcher)
+		.setMessage("Si vous aimez l'application, pourriez-vous prendre 1 minute pour noter l'application sur Google Play ? Merci ! :)")
+		.setPositiveButton("Oui !", null)
+		.setNegativeButton("Non", null)
+		.setNeutralButton("Pas maintenant", null);
+		new AppRate(this)
+		.setCustomDialog(builder)
+		.setMinDaysUntilPrompt(10)
+		.setMinLaunchesUntilPrompt(10)
+		.init();
 	}
 	
 	private void enableNotifs() {
