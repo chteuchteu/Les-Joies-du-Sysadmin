@@ -55,7 +55,9 @@ public final class Util {
 	
 	public static String GMTDateToFrench3(String gmtDate) {
 		try {
-			SimpleDateFormat dfGMT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+			// 2012-06-18 08:47:37 GMT
+			//SimpleDateFormat dfGMT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+			SimpleDateFormat dfGMT = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss z", Locale.ENGLISH);
 			dfGMT.parse(gmtDate);
 			SimpleDateFormat dfFrench = new SimpleDateFormat("d/MM", Locale.FRANCE);
 			return dfFrench.format(dfGMT.getCalendar().getTime());

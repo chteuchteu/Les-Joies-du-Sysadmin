@@ -70,6 +70,7 @@ public class Activity_Gif extends Activity {
 		int contentPaddingTop = 0;
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setDisplayShowHomeEnabled(false);
 		actionBar.setTitle(" Les Joies du Sysadmin");
 		int c = actionBarColor;
 		actionBar.setBackgroundDrawable(new ColorDrawable(c));

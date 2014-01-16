@@ -81,6 +81,7 @@ public class Activity_Main extends Activity {
 		actionBar.setDisplayHomeAsUpEnabled(false);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 			actionBar.setHomeButtonEnabled(false);
+		actionBar.setDisplayShowHomeEnabled(false);
 		actionBar.setTitle(" Les Joies du Sysadmin");
 		//int c = Color.argb(140, 0, 0, 0);
 		//int c = Color.argb(200, 12, 106, 179);
@@ -306,7 +307,7 @@ public class Activity_Main extends Activity {
 					for (Post p : posts) {
 						TextPost tp = (TextPost) p;
 						Gif g = new Gif();
-						//g.date = Util.GMTDateToFrench3(tp.getDateGMT());
+						g.date = Util.GMTDateToFrench3(tp.getDateGMT());
 						g.nom = tp.getTitle();
 						g.state = Gif.ST_EMPTY;
 						g.urlArticle = tp.getPostUrl();

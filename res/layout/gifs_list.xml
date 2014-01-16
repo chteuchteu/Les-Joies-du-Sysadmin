@@ -15,24 +15,24 @@
 		android:paddingBottom="3dp"
 		android:paddingRight="10dp"
 		android:paddingTop="6dp"
-		android:textColor="#7A7A7A"
-		android:textSize="18sp"
+		android:textColor="#66001534"
+		android:textSize="14sp"
 		android:textStyle="italic" />
 
 	<LinearLayout
 		android:layout_width="1dp"
 		android:layout_height="match_parent"
-		android:background="#186a6a6a" />
+		android:background="#146a6a6a" />
 
 	<TextView
 		android:id="@+id/line_a"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical"
-		android:layout_marginBottom="8dp"
+		android:layout_marginBottom="@dimen/listview_bottom_margin"
 		android:layout_marginLeft="@dimen/activity_horizontal_margin"
 		android:layout_marginRight="@dimen/activity_horizontal_margin"
-		android:layout_marginTop="6dp"
+		android:layout_marginTop="@dimen/listview_top_margin"
 		android:textColor="#333333"
 		android:textSize="@dimen/gif_list_fontsize1" />
 
