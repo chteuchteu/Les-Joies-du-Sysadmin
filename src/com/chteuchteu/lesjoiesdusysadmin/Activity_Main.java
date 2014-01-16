@@ -60,12 +60,10 @@ public class Activity_Main extends Activity {
 	public boolean		loaded;
 	private MenuItem	notifs;
 	private int			actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
-	
 	private boolean	notifsEnabled;
+	public static int 	scrollY;
 	
-	public static int scrollY;
-	
-	private ListView lv_gifs;
+	private ListView 	lv_gifs;
 	
 	@SuppressLint({ "InlinedApi", "NewApi" })
 	@Override
@@ -184,6 +182,8 @@ public class Activity_Main extends Activity {
 					lv_gifs.setSelectionFromTop(scrollY, 0);
 			}
 		});
+		
+		launchUpdateIfNeeded();
 	}
 	
 	private void enableNotifs() {
@@ -213,13 +213,6 @@ public class Activity_Main extends Activity {
 	}
 	
 	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		launchUpdateIfNeeded();
-	}
-	
-	@Override
 	public void onBackPressed() {
 		final LinearLayout l = (LinearLayout) findViewById(R.id.about);
 		if (l.getVisibility() == View.VISIBLE) {
@@ -236,7 +229,8 @@ public class Activity_Main extends Activity {
 			l.startAnimation(a);
 		}
 		else if (findViewById(R.id.first_disclaimer).getVisibility() == View.VISIBLE) { }
-		// else : rien du tout, sinon y revient à Activity_Gif
+		else
+			super.onBackPressed();
 	}
 	
 	private void launchUpdateIfNeeded() {
@@ -368,14 +362,7 @@ public class Activity_Main extends Activity {
 				
 				l.setOnItemClickListener(new OnItemClickListener() {
 					public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
-						TextView label = (TextView) view.findViewById(R.id.line_a);
-						Intent intent = new Intent(Activity_Main.this, Activity_Gif.class);
-						intent.putExtra("name", label.getText().toString());
-						Gif g = Util.getGif(gifs, label.getText().toString());
-						if (g != null) {
-							intent.putExtra("url", g.urlGif);
-							startActivity(intent);
-						}
+						itemClick(view);
 					}
 				});
 				
@@ -388,19 +375,23 @@ public class Activity_Main extends Activity {
 		}
 	}
 	
+	private void itemClick(View view) {
+		TextView label = (TextView) view.findViewById(R.id.line_a);
+		Intent intent = new Intent(Activity_Main.this, Activity_Gif.class);
+		intent.putExtra("name", label.getText().toString());
+		scrollY = ((ListView) findViewById(R.id.gifs_list)).getFirstVisiblePosition();
+		Gif g = Util.getGif(gifs, label.getText().toString());
+		if (g != null) {
+			intent.putExtra("url", g.urlGif);
+			startActivity(intent);
+			setTransition("rightToLeft");
+		}
+	}
+	
 	private void getGifs() {
 		if (!Util.getPref(this, "gifs").equals("")) {
-			String[] sg = Util.getPref(this, "gifs").split(";;");
-			List<Gif> li = new ArrayList<Gif>();
-			for (String s : sg) {
-				Gif g = new Gif();
-				if (s.split("::").length > 0)	g.nom = s.split("::")[0];
-				if (s.split("::").length > 1)	g.urlArticle = s.split("::")[1];
-				if (s.split("::").length > 2)	g.urlGif = s.split("::")[2];
-				if (s.split("::").length > 3)	g.date = s.split("::")[3];
-				if (s.split("::").length > 4)	g.state = Integer.parseInt(s.split("::")[4]);
-				li.add(g);
-			}
+			List<Gif> li = Util.getGifs(this);
+			
 			if (li.size() > 0) {
 				gifs = li;
 				
@@ -420,15 +411,7 @@ public class Activity_Main extends Activity {
 				
 				l.setOnItemClickListener(new OnItemClickListener() {
 					public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
-						TextView label = (TextView) view.findViewById(R.id.line_a);
-						Intent intent = new Intent(Activity_Main.this, Activity_Gif.class);
-						intent.putExtra("name", label.getText().toString());
-						scrollY = ((ListView) findViewById(R.id.gifs_list)).getFirstVisiblePosition();
-						Gif g = Util.getGif(gifs, label.getText().toString());
-						if (g != null) {
-							intent.putExtra("url", g.urlGif);
-							startActivity(intent);
-						}
+						itemClick(view);
 					}
 				});
 				saveLastViewed();
@@ -531,6 +514,13 @@ public class Activity_Main extends Activity {
 		if (resourceId > 0)
 			return getResources().getDimensionPixelSize(resourceId);
 		return 0;
+	}
+	
+	public void setTransition(String level) {
+		if (level.equals("rightToLeft"))
+			overridePendingTransition(R.anim.deeper_in, R.anim.deeper_out);
+		else if (level.equals("leftToRight"))
+			overridePendingTransition(R.anim.shallower_in, R.anim.shallower_out);
 	}
 	
 	@Override

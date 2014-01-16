@@ -28,7 +28,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.chteuchteu.lesjoiesdusysadmin.Activity_Gif" />
+        <activity android:name="com.chteuchteu.lesjoiesdusysadmin.Activity_Gif" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="lesjoiesdusysadmin.tumblr.com"
+                   android:pathPrefix="/post/"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
 
         <!-- Notifications -->
         <receiver android:name=".BootReceiver" >

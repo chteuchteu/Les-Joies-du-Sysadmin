@@ -30,6 +30,21 @@ public final class Util {
 		return height;
 	}
 	
+	public static List<Gif> getGifs(Activity a) {
+		String[] sg = Util.getPref(a, "gifs").split(";;");
+		List<Gif> li = new ArrayList<Gif>();
+		for (String s : sg) {
+			Gif g = new Gif();
+			if (s.split("::").length > 0)	g.nom = s.split("::")[0];
+			if (s.split("::").length > 1)	g.urlArticle = s.split("::")[1];
+			if (s.split("::").length > 2)	g.urlGif = s.split("::")[2];
+			if (s.split("::").length > 3)	g.date = s.split("::")[3];
+			if (s.split("::").length > 4)	g.state = Integer.parseInt(s.split("::")[4]);
+			li.add(g);
+		}
+		return li;
+	}
+	
 	public static void saveGifs(Activity a, List<Gif> gifs) {
 		String str = "";
 		int i=0;
@@ -219,6 +234,23 @@ public final class Util {
 		for (Gif g : l) {
 			if (g.urlArticle.equals(u))
 				return g;
+		}
+		return null;
+	}
+	
+	public static Gif getGifFromWebUrl(List<Gif> l, String url) {
+		if (url.equals(""))	return null;
+		String[] spl = url.split("/");
+		if (spl.length < 2)	return null;
+		for (Gif g : l) {
+			String gu = g.urlArticle;
+			if (gu != null && !gu.equals("")) {
+				String[] spl2 = gu.split("/");
+				if (spl2.length > 2) {
+					if (spl[spl.length-2].equals(spl2[spl2.length-2]))
+						return g;
+				}
+			}
 		}
 		return null;
 	}

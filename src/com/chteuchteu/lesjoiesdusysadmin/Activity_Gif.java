@@ -8,8 +8,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.google.analytics.tracking.android.EasyTracker;
-
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -43,9 +41,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 public class Activity_Gif extends Activity {
 	private static Activity 	a;
 	private static Gif 			gif;
+	private static Gif			old_gif;
 	private AsyncTask<Void, Integer, Void> downloadGifTh;
 	private static WebView		wv;
 	private boolean			textsShown = true;
@@ -60,14 +61,30 @@ public class Activity_Gif extends Activity {
 	private static int			SWITCH_PREVIOUS = 0;
 	
 	private static int			currentlySwitching = SWITCH_UNKNOWN;
+	private static boolean		fromWeb;
 	
 	@SuppressLint({ "SetJavaScriptEnabled", "InlinedApi" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.activity_gif);
-		TextView header_nom = (TextView) findViewById(R.id.header_nom);
+		
+		fromWeb = false;
+		final Intent intent = getIntent();
+		final String action = intent.getAction();
+		if (action != null && action.equals(Intent.ACTION_VIEW)) {
+			fromWeb = true;
+			String uri = intent.getDataString();
+			if (Activity_Main.gifs == null || Activity_Main.gifs.size() == 0)
+				Activity_Main.gifs = Util.getGifs(this);
+			gif = Util.getGifFromWebUrl(Activity_Main.gifs, uri);
+			if (gif == null) {
+				fromWeb = false;
+				Toast.makeText(this, "Impossible d'afficher ce gif depuis le web...", Toast.LENGTH_LONG).show();
+			}
+		}
 		
 		int contentPaddingTop = 0;
 		ActionBar actionBar = getActionBar();
@@ -101,15 +118,22 @@ public class Activity_Gif extends Activity {
 		
 		a = this;
 		Intent thisIntent = getIntent();
-		String url = null;
+		String url = "";
+		if (Activity_Main.gifs != null && Activity_Main.gifs.size() > 0)
+			url = Activity_Main.gifs.get(0).urlGif;
 		if (thisIntent != null && thisIntent.getExtras() != null
 				&& thisIntent.getExtras().containsKey("url"))
 			url = thisIntent.getExtras().getString("url");
-		gif = Util.getGifFromGifUrl(Activity_Main.gifs, url);
+		
+		if (!fromWeb || gif == null)
+			gif = Util.getGifFromGifUrl(Activity_Main.gifs, url);
+		
+		old_gif = gif;
 		
 		if (url != null)
 			restoreActivity();
 		
+		TextView header_nom = (TextView) findViewById(R.id.header_nom);
 		header_nom.setText(gif.nom);
 		if (header_nom.getText().toString().length() / 32 > 4) // nb lines
 			header_nom.setLineSpacing(-10, 1);
@@ -162,6 +186,9 @@ public class Activity_Gif extends Activity {
 		setFont(findViewById(R.id.header_nom), "RobotoCondensed-Light.ttf");
 		setFont(findViewById(R.id.gif_precedent), "RobotoCondensed-Regular.ttf");
 		setFont(findViewById(R.id.gif_suivant), "RobotoCondensed-Regular.ttf");
+		
+		if (gif == null && old_gif != null)
+			gif = old_gif;
 	}
 	
 	private void restoreActivity() {
@@ -175,7 +202,15 @@ public class Activity_Gif extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
-		loadGif();
+		if (gif != null)
+			loadGif();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		gif = null;
 	}
 	
 	private void loadGif() {
@@ -436,7 +471,7 @@ public class Activity_Gif extends Activity {
 	@Override
 	public void onBackPressed() {
 		stopThread();
-		startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
+		finish();
 		setTransition("leftToRight");
 	}
 	
@@ -466,7 +501,8 @@ public class Activity_Gif extends Activity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				stopThread();
-				startActivity(new Intent(Activity_Gif.this, Activity_Main.class));
+				finish();
+				setTransition("leftToRight");
 				return true;
 			case R.id.menu_refresh:
 				stopThread();
