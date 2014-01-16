@@ -16,7 +16,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Post;
@@ -41,7 +40,6 @@ public class NotificationService extends Service {
 			stopSelf();
 			return;
 		}
-		Log.v("LesJoisDuSysadmin", "Launching thread");
 		// do the actual work, in a separate thread
 		new PollTask().execute();
 	}
@@ -102,7 +100,6 @@ public class NotificationService extends Service {
 					
 					for (Post p : posts) {
 						TextPost tp = (TextPost) p;
-						Log.v("", "Fetched post " + tp.getTitle());
 						Gif g = new Gif();
 						//g.date = Util.GMTDateToFrench3(tp.getDateGMT());
 						g.nom = tp.getTitle();
@@ -122,16 +119,13 @@ public class NotificationService extends Service {
 			if (l.size() == 0)
 				return null;
 			
-			Log.v("", "Checking if there are new ones");
 			String lastUnseenGif = getPref("lastViewed");
 			if (l.size() > 0) {
 				for (Gif g : l) {
-					Log.v("", "Looking at gif " + g.nom);
 					if (g.urlArticle.equals(lastUnseenGif))
 						break;
-					else {
+					else
 						nbUnseenGifs++;
-					}
 				}
 			}
 			
@@ -140,7 +134,6 @@ public class NotificationService extends Service {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			Log.v("", "onPostExecute");
 			if (nbUnseenGifs > 0) {
 				String title;
 				String text;
@@ -164,6 +157,7 @@ public class NotificationService extends Service {
 				NotificationManager nManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				nManager.notify(NOTIFICATION_ID, builder.build());
 			} else {
+				// TODO
 				NotificationCompat.Builder builder =
 						new NotificationCompat.Builder(NotificationService.this)
 				.setSmallIcon(R.drawable.ic_launcher)
