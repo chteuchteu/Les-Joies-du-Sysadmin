@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -199,6 +200,9 @@ public class Activity_Main extends Activity {
 				SystemClock.elapsedRealtime() + minutes*60*1000, minutes*60*1000, pi);
 		if (notifs != null)
 			notifs.setChecked(true);
+		try {
+			pi.send();
+		} catch (CanceledException e) {	e.printStackTrace(); }
 	}
 	
 	private void disableNotifs() {

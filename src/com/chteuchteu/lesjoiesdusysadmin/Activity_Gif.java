@@ -57,11 +57,9 @@ public class Activity_Gif extends Activity {
 	private static boolean		loaded = false;
 	private int					actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
 	
-	private static int			SWITCH_UNKNOWN = -1;
 	private static int			SWITCH_NEXT = 1;
 	private static int			SWITCH_PREVIOUS = 0;
 	
-	private static int			currentlySwitching = SWITCH_UNKNOWN;
 	private static boolean		fromWeb;
 	private ShareActionProvider mShareActionProvider;
 	
@@ -240,8 +238,6 @@ public class Activity_Gif extends Activity {
 				
 				((TextView) findViewById(R.id.header_nom)).setText(gif.nom);
 				
-				currentlySwitching = SWITCH_UNKNOWN;
-				
 				wv.setWebViewClient(new WebViewClient() {
 					public void onPageFinished(WebView v, String u) {
 						wv.setVisibility(View.VISIBLE);
@@ -261,23 +257,21 @@ public class Activity_Gif extends Activity {
 			stopThread();
 			int pos = Util.getGifPos(gif, Activity_Main.gifs);
 			int targetPos = 0;
-			if (currentlySwitching == SWITCH_NEXT && which == SWITCH_PREVIOUS)
-				targetPos = pos - 1;
-			else if (currentlySwitching == SWITCH_PREVIOUS && which == SWITCH_NEXT)
+			if (which == SWITCH_NEXT)
 				targetPos = pos + 1;
-			else if (currentlySwitching == SWITCH_UNKNOWN) {
-				if (which == SWITCH_NEXT)
-					targetPos = pos + 1;
-				else
-					targetPos = pos - 1;
-			}
-			currentlySwitching = which;
+			else
+				targetPos = pos - 1;
 			
 			if (targetPos >= 0 && targetPos < Activity_Main.gifs.size()) {
 				gif = Activity_Main.gifs.get(targetPos);
 				finishedDownload = false;
 				loaded = false;
 				loadGif();
+				
+				AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
+				an.setDuration(150);
+				an.setFillAfter(true);
+				wv.startAnimation(an);
 				
 				if (!finishedDownload) {
 					if (targetPos == 0)	a.findViewById(R.id.gif_precedent).setVisibility(View.GONE);
@@ -445,11 +439,9 @@ public class Activity_Gif extends Activity {
 			
 			if (photo != null && photo.exists()) {
 				loaded = true;
-				currentlySwitching = SWITCH_UNKNOWN;
 				try {
 					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_COMPLETE;
 					Util.saveGifs(a, Activity_Main.gifs);
-					
 					
 					wv.setVisibility(View.GONE);
 					String imagePath = Util.getEntiereFileName(gif, true);
@@ -491,6 +483,7 @@ public class Activity_Gif extends Activity {
 		if (downloadGifTh != null) {
 			try {
 				downloadGifTh.cancel(false);
+				// TODO supprimer fichier gif si encore en cours de chargement
 			} catch (Exception ignored) { }
 		}
 	}
@@ -507,7 +500,8 @@ public class Activity_Gif extends Activity {
 			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 			sharingIntent.setType("text/plain");
 			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Les Joies du Sysadmin");
-			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, gif.nom + " : " + gif.urlArticle);
+			String shareText = gif.nom + " : " + gif.urlArticle /*+ " via les Joies du Sysadmin sur Android (gratuit) https://play.google.com/store/apps/details?id=com.chteuchteu.lesjoiesdusysadmin"*/;
+			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareText);
 			mShareActionProvider.setShareIntent(sharingIntent);
 		}
 		else
