@@ -60,10 +60,11 @@ public class Activity_Main extends Activity {
 	private MenuItem	notifs;
 	private int			actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
 	
-	
 	private boolean	notifsEnabled;
 	
-	private int scrollY;
+	public static int scrollY;
+	
+	private ListView lv_gifs;
 	
 	@SuppressLint({ "InlinedApi", "NewApi" })
 	@Override
@@ -71,6 +72,8 @@ public class Activity_Main extends Activity {
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		setContentView(R.layout.activity_main);
+		
+		lv_gifs = (ListView) findViewById(R.id.gifs_list);
 		
 		int contentPaddingTop = 0;
 		int contentPaddingBottom = 0;
@@ -102,20 +105,21 @@ public class Activity_Main extends Activity {
 			}
 		}
 		if (contentPaddingTop != 0) {
-			final ListView l = (ListView) findViewById(R.id.gifs_list);
-			l.setClipToPadding(false);
-			l.setPadding(0, contentPaddingTop, 0, contentPaddingBottom);
+			lv_gifs.setClipToPadding(false);
+			lv_gifs.setPadding(0, contentPaddingTop, 0, contentPaddingBottom);
 		}
 		
 		a = this;
-		gifs = new ArrayList<Gif>();
-		loaded = false;
-		
-		Util.createLJDSYDirectory();
-		getGifs();
-		if (Util.removeUncompleteGifs(a, gifs))
+		if (gifs == null) {
+			gifs = new ArrayList<Gif>();
+			loaded = false;
+			
+			Util.createLJDSYDirectory();
 			getGifs();
-		Util.removeOldGifs(gifs);
+			if (Util.removeUncompleteGifs(a, gifs))
+				getGifs();
+			Util.removeOldGifs(gifs);
+		}
 		
 		if (Util.getPref(this, "first_disclaimer").equals("")) {
 			Util.setPref(this, "first_disclaimer", "true");
@@ -170,6 +174,14 @@ public class Activity_Main extends Activity {
 		.setMinDaysUntilPrompt(10)
 		.setMinLaunchesUntilPrompt(10)
 		.init();
+		
+		lv_gifs.post(new Runnable() {
+            @Override
+            public void run() {
+        		if (scrollY != 0)
+        			lv_gifs.setSelectionFromTop(scrollY, 0);
+            }
+        });
 	}
 	
 	private void enableNotifs() {
@@ -182,8 +194,7 @@ public class Activity_Main extends Activity {
 		PendingIntent pi = PendingIntent.getService(Activity_Main.this, 0, i, 0);
 		am.cancel(pi);
 		am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-				SystemClock.elapsedRealtime() + minutes*60*1000,
-				minutes*60*1000, pi);
+				SystemClock.elapsedRealtime() + minutes*60*1000, minutes*60*1000, pi);
 		if (notifs != null)
 			notifs.setChecked(true);
 	}
@@ -202,11 +213,6 @@ public class Activity_Main extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
-		ListView l = (ListView) findViewById(R.id.gifs_list);
-		Log.v("", "Trying to restore scrollY : " + scrollY);
-		if (scrollY != 0)
-			l.scrollTo(l.getScrollX(), scrollY);
 		
 		launchUpdateIfNeeded();
 	}
@@ -415,8 +421,7 @@ public class Activity_Main extends Activity {
 						TextView label = (TextView) view.findViewById(R.id.line_a);
 						Intent intent = new Intent(Activity_Main.this, Activity_Gif.class);
 						intent.putExtra("name", label.getText().toString());
-						scrollY = -((ListView) findViewById(R.id.gifs_list)).getChildAt(0).getTop();
-						Log.v("", "Saving scrollY : " + scrollY);
+						scrollY = ((ListView) findViewById(R.id.gifs_list)).getFirstVisiblePosition();
 						Gif g = Util.getGif(gifs, label.getText().toString());
 						if (g != null) {
 							intent.putExtra("url", g.urlGif);
