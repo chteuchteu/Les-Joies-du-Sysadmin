@@ -268,20 +268,22 @@ public class Activity_Gif extends Activity {
 					finishedDownload = false;
 					loaded = false;
 					
-					wv.setVisibility(View.VISIBLE);
-					AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
-					an.setDuration(150);
-					//an.setFillEnabled(true);
-					//an.setFillAfter(true);
-					an.setAnimationListener(new AnimationListener() {
-						@Override public void onAnimationStart(Animation animation) { }
-						@Override public void onAnimationRepeat(Animation animation) { }
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							wv.setVisibility(View.GONE);
-						}
-					});
-					wv.startAnimation(an);
+					if (wv.getVisibility() == View.VISIBLE) {
+						//wv.setVisibility(View.VISIBLE);
+						AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
+						an.setDuration(150);
+						//an.setFillEnabled(true);
+						//an.setFillAfter(true);
+						an.setAnimationListener(new AnimationListener() {
+							@Override public void onAnimationStart(Animation animation) { }
+							@Override public void onAnimationRepeat(Animation animation) { }
+							@Override
+							public void onAnimationEnd(Animation animation) {
+								wv.setVisibility(View.GONE);
+							}
+						});
+						wv.startAnimation(an);
+					}
 					
 					loadGif();
 					
