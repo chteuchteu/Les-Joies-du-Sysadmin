@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
@@ -46,10 +47,11 @@ public class NotificationService extends Service {
 	
 	private class PollTask extends AsyncTask<Void, Void, Void> {
 		int nbUnseenGifs = 0;
+		List<Gif> l;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			List<Gif> l = new ArrayList<Gif>();
+			l = new ArrayList<Gif>();
 			try {
 				JumblrClient client = new JumblrClient("3TRQZe87tlv3jXHuF9AHtDydThIn1hDijFNLLhGEULVRRHpM3q", "4BpchUIeOkEFMAkNGiIKjpgG8sLVliKA8cgIFSa3JuQ6Ta0qNd");
 				boolean getPosts = true;
@@ -96,7 +98,16 @@ public class NotificationService extends Service {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			if (nbUnseenGifs > 0) {
+			// Check if there are new gifs, and if a notification for them hasn't been dispayed yet
+			boolean notif = (nbUnseenGifs > 0 && 
+					(getPref("lastNotifiedGif").equals("") 
+							|| !getPref("lastNotifiedGif").equals("") && l.size() > 0 && !l.get(0).urlGif.equals(getPref("lastNotifiedGif"))));
+			
+			if (notif) {
+				// Save the last gif
+				if (l.size() > 0)
+					setPref("lastNotifiedGif", l.get(0).urlGif);
+				
 				String title;
 				String text;
 				if (nbUnseenGifs > 1) {
@@ -138,6 +149,13 @@ public class NotificationService extends Service {
 	
 	private String getPref(String key) {
 		return this.getSharedPreferences("user_pref", Context.MODE_PRIVATE).getString(key, "");
+	}
+	
+	public void setPref(String key, String value) {
+		SharedPreferences prefs = this.getSharedPreferences("user_pref", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString(key, value);
+		editor.commit();
 	}
 	
 	@Override

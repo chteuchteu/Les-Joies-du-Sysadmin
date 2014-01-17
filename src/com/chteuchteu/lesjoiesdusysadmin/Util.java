@@ -92,7 +92,7 @@ public final class Util {
 		String path = "";
 		if (withFilePrefix)
 			path += "file://";
-		path += Environment.getExternalStorageDirectory().getPath() + "/lesJoiesDuSysadmin/" + Util.getFileName(g) + ".gif";
+		path += Environment.getExternalStorageDirectory().getPath() + "/lesJoiesDuSysadmin" + Util.getFileName(g) + ".gif";
 		return path;
 	}
 	

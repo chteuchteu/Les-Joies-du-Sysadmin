@@ -105,6 +105,8 @@ public class Activity_Main extends Activity {
 				contentPaddingBottom += 150;
 			}
 		}
+		else
+			findViewById(R.id.kitkat_actionbar_notifs).setVisibility(View.GONE);
 		if (contentPaddingTop != 0) {
 			lv_gifs.setClipToPadding(false);
 			lv_gifs.setPadding(0, contentPaddingTop, 0, contentPaddingBottom);
@@ -188,7 +190,6 @@ public class Activity_Main extends Activity {
 	}
 	
 	private void enableNotifs() {
-		Log.v("", "Enabling notifs");
 		Util.setPref(a, "notifs", "true");
 		
 		int minutes = 180;
@@ -253,8 +254,10 @@ public class Activity_Main extends Activity {
 					letsFetch = false;
 			}
 		}
-		if (!loaded)
+		if (!loaded) {
+			Log.v("", "getgifs");
 			getGifs();
+		} else Log.v("", "no getgifs");
 		if (letsFetch)
 			new parseFeed().execute();
 	}
@@ -412,9 +415,10 @@ public class Activity_Main extends Activity {
 				}
 				SimpleAdapter sa = new SimpleAdapter(Activity_Main.this, list, R.layout.gifs_list, new String[] { "line1","line2" }, new int[] {R.id.line_a, R.id.line_b});
 				l.setAdapter(sa);
-				
+				Log.v("", "setting onitemclicklistener");
 				l.setOnItemClickListener(new OnItemClickListener() {
 					public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
+						Log.v("", "click");
 						itemClick(view);
 					}
 				});

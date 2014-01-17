@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,23 +46,23 @@ import android.widget.Toast;
 import com.google.analytics.tracking.android.EasyTracker;
 
 public class Activity_Gif extends Activity {
+	public static int pos = -1;
 	private static Activity 	a;
-	private static Gif 			gif;
-	private static Gif			old_gif;
+	public static Gif 			gif;
+	public static Gif			old_gif;
 	private AsyncTask<Void, Integer, Void> downloadGifTh;
-	private static WebView		wv;
-	private boolean			textsShown = true;
-	private float				deltaY;
+	public static WebView		wv;
+	public boolean				textsShown = true;
+	public float				deltaY;
 	
-	private static boolean		finishedDownload = true;
-	private static boolean		loaded = false;
-	private int					actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
+	public static boolean		finishedDownload = true;
+	public static boolean		loaded = false;
+	public int					actionBarColor = Color.argb(210, 0, 82, 156); // (210, 44, 62, 80);
 	
-	private static int			SWITCH_NEXT = 1;
-	private static int			SWITCH_PREVIOUS = 0;
+	public static int			SWITCH_NEXT = 1;
+	public static int			SWITCH_PREVIOUS = 0;
 	
-	private static boolean		fromWeb;
-	private ShareActionProvider mShareActionProvider;
+	public static boolean		fromWeb;
 	
 	@SuppressLint({ "SetJavaScriptEnabled", "InlinedApi" })
 	@Override
@@ -133,6 +134,8 @@ public class Activity_Gif extends Activity {
 		if (!fromWeb || gif == null)
 			gif = Util.getGifFromGifUrl(Activity_Main.gifs, url);
 		
+		pos = Util.getGifPos(gif, Activity_Main.gifs);
+		
 		old_gif = gif;
 		
 		if (url != null)
@@ -168,18 +171,8 @@ public class Activity_Gif extends Activity {
 			gif_precedent.setVisibility(View.GONE);
 		if (pos == Activity_Main.gifs.size()-1)
 			gif_suivant.setVisibility(View.GONE);
-		gif_precedent.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				switchGif(SWITCH_PREVIOUS);
-			}
-		});
-		gif_suivant.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				switchGif(SWITCH_NEXT);
-			}
-		});
+		gif_precedent.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { switchGif(SWITCH_PREVIOUS); } });
+		gif_suivant.setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { switchGif(SWITCH_NEXT); } });
 		
 		findViewById(R.id.actions_container).post(new Runnable(){
 			public void run() {
@@ -207,6 +200,9 @@ public class Activity_Gif extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
+		if (gif == null && Activity_Main.gifs != null && pos != -1)
+			gif = Activity_Main.gifs.get(pos);
+		
 		if (gif != null)
 			loadGif();
 	}
@@ -221,12 +217,21 @@ public class Activity_Gif extends Activity {
 	private void loadGif() {
 		if (!loaded) {
 			File photo = new File(Util.getEntiereFileName(gif, false));
+			Log.v("", "checking " + Util.getEntiereFileName(gif, false));
 			stopThread();
 			wv.setVisibility(View.GONE);
 			if (!photo.exists()) {
+				Log.v("", "Does not exists");
 				downloadGifTh = new downloadGif();
 				downloadGifTh.execute();
 			} else {
+				if (gif.state != Gif.ST_COMPLETE) {
+					gif.state = Gif.ST_COMPLETE;
+
+					Log.v("", "setting ST_COMPLETE (forced)");
+					Util.saveGifs(a, Activity_Main.gifs);
+				}
+				Log.v("", "exists : swg !");
 				String imagePath = Util.getEntiereFileName(gif, true);
 				wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 				
@@ -244,6 +249,7 @@ public class Activity_Gif extends Activity {
 						AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
 						a.setStartOffset(250);
 						a.setDuration(350);
+						a.setFillEnabled(true);
 						a.setFillAfter(true);
 						wv.startAnimation(a);
 					}
@@ -254,31 +260,44 @@ public class Activity_Gif extends Activity {
 	
 	private void switchGif(int which) {
 		if (textsShown) {
-			stopThread();
-			int pos = Util.getGifPos(gif, Activity_Main.gifs);
-			int targetPos = 0;
-			if (which == SWITCH_NEXT)
-				targetPos = pos + 1;
-			else
-				targetPos = pos - 1;
-			
-			if (targetPos >= 0 && targetPos < Activity_Main.gifs.size()) {
-				gif = Activity_Main.gifs.get(targetPos);
-				finishedDownload = false;
-				loaded = false;
-				loadGif();
+			if (gif != null) {
+				stopThread();
+				int pos = Util.getGifPos(gif, Activity_Main.gifs);
+				int targetPos = 0;
+				if (which == SWITCH_NEXT)
+					targetPos = pos + 1;
+				else
+					targetPos = pos - 1;
 				
-				AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
-				an.setDuration(150);
-				an.setFillAfter(true);
-				wv.startAnimation(an);
-				
-				if (!finishedDownload) {
-					if (targetPos == 0)	a.findViewById(R.id.gif_precedent).setVisibility(View.GONE);
-					else			a.findViewById(R.id.gif_precedent).setVisibility(View.VISIBLE);
-					if (targetPos == Activity_Main.gifs.size()-1)		a.findViewById(R.id.gif_suivant).setVisibility(View.GONE);
-					else			a.findViewById(R.id.gif_suivant).setVisibility(View.VISIBLE);
-					((TextView) a.findViewById(R.id.header_nom)).setText(gif.nom);
+				if (targetPos >= 0 && targetPos < Activity_Main.gifs.size()) {
+					gif = Activity_Main.gifs.get(targetPos);
+					finishedDownload = false;
+					loaded = false;
+					
+					wv.setVisibility(View.VISIBLE);
+					AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
+					an.setDuration(150);
+					//an.setFillEnabled(true);
+					//an.setFillAfter(true);
+					an.setAnimationListener(new AnimationListener() {
+						@Override public void onAnimationStart(Animation animation) { }
+						@Override public void onAnimationRepeat(Animation animation) { }
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							wv.setVisibility(View.GONE);
+						}
+					});
+					wv.startAnimation(an);
+					
+					loadGif();
+					
+					if (!finishedDownload) {
+						if (targetPos == 0)	a.findViewById(R.id.gif_precedent).setVisibility(View.GONE);
+						else			a.findViewById(R.id.gif_precedent).setVisibility(View.VISIBLE);
+						if (targetPos == Activity_Main.gifs.size()-1)		a.findViewById(R.id.gif_suivant).setVisibility(View.GONE);
+						else			a.findViewById(R.id.gif_suivant).setVisibility(View.VISIBLE);
+						((TextView) a.findViewById(R.id.header_nom)).setText(gif.nom);
+					}
 				}
 			}
 		}
@@ -308,6 +327,7 @@ public class Activity_Gif extends Activity {
 		else
 			a = new AlphaAnimation(0.0f, 1.0f);
 		a.setDuration(250);
+		a.setFillEnabled(true);
 		a.setFillAfter(true);
 		title.startAnimation(a);
 		actions.startAnimation(a);
@@ -393,7 +413,7 @@ public class Activity_Gif extends Activity {
 				int count;
 				
 				Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_DOWNLOADING;
-				Util.saveGifs(a, Activity_Main.gifs);
+				Log.v("", "setting ST_DOWNLOADING");
 				
 				while ((count = input.read(data)) != -1) {
 					if (isCancelled()) {
@@ -430,6 +450,9 @@ public class Activity_Gif extends Activity {
 			
 			finishedDownload = true;
 			
+			if (gif == null && Activity_Main.gifs != null && pos != -1)
+				gif = Activity_Main.gifs.get(pos);
+			
 			int pos = Util.getGifPos(gif, Activity_Main.gifs);
 			if (pos == 0)	a.findViewById(R.id.gif_precedent).setVisibility(View.GONE);
 			else			a.findViewById(R.id.gif_precedent).setVisibility(View.VISIBLE);
@@ -441,6 +464,7 @@ public class Activity_Gif extends Activity {
 				loaded = true;
 				try {
 					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_COMPLETE;
+					Log.v("", "setting ST_COMPLETE");
 					Util.saveGifs(a, Activity_Main.gifs);
 					
 					wv.setVisibility(View.GONE);
@@ -453,17 +477,27 @@ public class Activity_Gif extends Activity {
 							AlphaAnimation a = new AlphaAnimation(0.0f, 1.0f);
 							a.setStartOffset(250);
 							a.setDuration(350);
+							a.setFillEnabled(true);
 							a.setFillAfter(true);
 							wv.startAnimation(a);
 						}
 					});
-				}
-				catch (Exception ex) {
+				} catch (Exception ex) {
+					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_DOWNLOADING;
+
+					Log.v("", "setting ST_DOWNLOADING");
+					Util.removeUncompleteGifs(a, Activity_Main.gifs);
 					ex.printStackTrace();
 					Toast.makeText(a, "Erreur lors du téléchargement de ce gif...", Toast.LENGTH_SHORT).show();
+					pb.setVisibility(View.GONE);
 				}
-			} else
+			} else {
 				Toast.makeText(a, "Erreur lors du téléchargement de ce gif...", Toast.LENGTH_SHORT).show();
+				Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_DOWNLOADING;
+				Log.v("", "setting ST_DOWNLOADING");
+				Util.removeUncompleteGifs(a, Activity_Main.gifs);
+				pb.setVisibility(View.GONE);
+			}
 		}
 	}
 	
@@ -483,9 +517,15 @@ public class Activity_Gif extends Activity {
 		if (downloadGifTh != null) {
 			try {
 				downloadGifTh.cancel(false);
-				// TODO supprimer fichier gif si encore en cours de chargement
 			} catch (Exception ignored) { }
 		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		
+		Util.removeUncompleteGifs(a, Activity_Main.gifs);
 	}
 	
 	
@@ -496,7 +536,7 @@ public class Activity_Gif extends Activity {
 		
 		MenuItem item = menu.findItem(R.id.menu_share);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+			ShareActionProvider mShareActionProvider = (ShareActionProvider) item.getActionProvider();
 			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 			sharingIntent.setType("text/plain");
 			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Les Joies du Sysadmin");
@@ -525,6 +565,7 @@ public class Activity_Gif extends Activity {
 				
 				AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
 				an.setDuration(150);
+				an.setFillEnabled(true);
 				an.setFillAfter(true);
 				an.setAnimationListener(new AnimationListener() {
 					@Override
@@ -586,6 +627,11 @@ public class Activity_Gif extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
+		
+		// Bug fix : when another applications goes foreground : gif becomes null
+		if (gif == null && Activity_Main.gifs != null && pos != -1)
+			gif = Activity_Main.gifs.get(pos);
+		
 		EasyTracker.getInstance(this).activityStart(this);
 	}
 }
