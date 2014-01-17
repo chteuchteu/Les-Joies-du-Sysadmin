@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -217,21 +216,16 @@ public class Activity_Gif extends Activity {
 	private void loadGif() {
 		if (!loaded) {
 			File photo = new File(Util.getEntiereFileName(gif, false));
-			Log.v("", "checking " + Util.getEntiereFileName(gif, false));
 			stopThread();
 			wv.setVisibility(View.GONE);
 			if (!photo.exists()) {
-				Log.v("", "Does not exists");
 				downloadGifTh = new downloadGif();
 				downloadGifTh.execute();
 			} else {
 				if (gif.state != Gif.ST_COMPLETE) {
 					gif.state = Gif.ST_COMPLETE;
-
-					Log.v("", "setting ST_COMPLETE (forced)");
 					Util.saveGifs(a, Activity_Main.gifs);
 				}
-				Log.v("", "exists : swg !");
 				String imagePath = Util.getEntiereFileName(gif, true);
 				wv.loadDataWithBaseURL("", Util.getHtml(imagePath), "text/html","utf-8", "");
 				
@@ -413,7 +407,6 @@ public class Activity_Gif extends Activity {
 				int count;
 				
 				Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_DOWNLOADING;
-				Log.v("", "setting ST_DOWNLOADING");
 				
 				while ((count = input.read(data)) != -1) {
 					if (isCancelled()) {
@@ -464,7 +457,6 @@ public class Activity_Gif extends Activity {
 				loaded = true;
 				try {
 					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_COMPLETE;
-					Log.v("", "setting ST_COMPLETE");
 					Util.saveGifs(a, Activity_Main.gifs);
 					
 					wv.setVisibility(View.GONE);
@@ -484,8 +476,7 @@ public class Activity_Gif extends Activity {
 					});
 				} catch (Exception ex) {
 					Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_DOWNLOADING;
-
-					Log.v("", "setting ST_DOWNLOADING");
+					
 					Util.removeUncompleteGifs(a, Activity_Main.gifs);
 					ex.printStackTrace();
 					Toast.makeText(a, "Erreur lors du téléchargement de ce gif...", Toast.LENGTH_SHORT).show();
@@ -494,7 +485,6 @@ public class Activity_Gif extends Activity {
 			} else {
 				Toast.makeText(a, "Erreur lors du téléchargement de ce gif...", Toast.LENGTH_SHORT).show();
 				Util.getGif(Activity_Main.gifs, gif.nom).state = Gif.ST_DOWNLOADING;
-				Log.v("", "setting ST_DOWNLOADING");
 				Util.removeUncompleteGifs(a, Activity_Main.gifs);
 				pb.setVisibility(View.GONE);
 			}
