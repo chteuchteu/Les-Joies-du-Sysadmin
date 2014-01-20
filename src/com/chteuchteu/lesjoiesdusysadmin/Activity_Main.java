@@ -22,7 +22,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -254,10 +253,8 @@ public class Activity_Main extends Activity {
 					letsFetch = false;
 			}
 		}
-		if (!loaded) {
-			Log.v("", "getgifs");
+		if (!loaded)
 			getGifs();
-		} else Log.v("", "no getgifs");
 		if (letsFetch)
 			new parseFeed().execute();
 	}
@@ -415,10 +412,9 @@ public class Activity_Main extends Activity {
 				}
 				SimpleAdapter sa = new SimpleAdapter(Activity_Main.this, list, R.layout.gifs_list, new String[] { "line1","line2" }, new int[] {R.id.line_a, R.id.line_b});
 				l.setAdapter(sa);
-				Log.v("", "setting onitemclicklistener");
+				
 				l.setOnItemClickListener(new OnItemClickListener() {
 					public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
-						Log.v("", "click");
 						itemClick(view);
 					}
 				});
