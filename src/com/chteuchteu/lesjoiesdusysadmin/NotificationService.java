@@ -33,7 +33,7 @@ public class NotificationService extends Service {
 	@SuppressWarnings("deprecation")
 	private void handleIntent(Intent intent) {
 		PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.chteuchteu.lesjoiesducode");
+		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.chteuchteu.lesjoiesdusysadmin");
 		mWakeLock.acquire();
 		
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
