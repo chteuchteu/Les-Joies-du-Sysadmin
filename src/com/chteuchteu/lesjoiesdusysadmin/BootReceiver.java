@@ -17,7 +17,7 @@ public class BootReceiver extends BroadcastReceiver {
 		// "this" whenever we need to pass a reference to the current context.
 		// Thankfully, Android will supply a valid Context as the first parameter
 		
-		if (getPref("notifs", context).equals("true")) {
+		if (Util.getPref(context, "notifs").equals("true")) {
 			int min = 180;
 			//if (!getPref("notifs_refreshRate", context).equals(""))
 			//	min = Integer.parseInt(getPref("notifs_refreshRate", context));
@@ -30,9 +30,5 @@ public class BootReceiver extends BroadcastReceiver {
 					SystemClock.elapsedRealtime() + min*60*1000,
 					min*60*1000, pi);
 		}
-	}
-	
-	public String getPref(String key, Context c) {
-		return c.getSharedPreferences("user_pref", Context.MODE_PRIVATE).getString(key, "");
 	}
 }

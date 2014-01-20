@@ -117,11 +117,14 @@ public class NotificationService extends Service {
 					title = "Les Joies du Sysadmin";
 					text = "1 nouveau gif !";
 				}
+				
+				
 				NotificationCompat.Builder builder =
 						new NotificationCompat.Builder(NotificationService.this)
 				.setSmallIcon(R.drawable.ic_notifications)
 				.setNumber(nbUnseenGifs)
 				.setContentTitle(title)
+				.setAutoCancel(true)
 				.setContentText(text);
 				int NOTIFICATION_ID = 1664;
 				

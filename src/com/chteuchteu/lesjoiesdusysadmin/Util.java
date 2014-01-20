@@ -156,6 +156,10 @@ public final class Util {
 		return a.getSharedPreferences("user_pref", Context.MODE_PRIVATE).getString(key, "");
 	}
 	
+	public static String getPref(Context c, String key) {
+		return c.getSharedPreferences("user_pref", Context.MODE_PRIVATE).getString(key, "");
+	}
+	
 	public static boolean isSubsetOf(Collection<String> subset,
 			Collection<String> superset) {
 		for (String string : subset) {
