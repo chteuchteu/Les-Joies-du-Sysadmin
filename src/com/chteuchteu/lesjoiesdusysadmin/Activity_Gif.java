@@ -62,6 +62,7 @@ public class Activity_Gif extends Activity {
 	public static int			SWITCH_PREVIOUS = 0;
 	
 	public static boolean		fromWeb;
+	public ShareActionProvider mShareActionProvider;
 	
 	@SuppressLint({ "SetJavaScriptEnabled", "InlinedApi" })
 	@Override
@@ -265,15 +266,14 @@ public class Activity_Gif extends Activity {
 				
 				if (targetPos >= 0 && targetPos < Activity_Main.gifs.size()) {
 					gif = Activity_Main.gifs.get(targetPos);
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+						updateSharingIntent();
 					finishedDownload = false;
 					loaded = false;
 					
 					if (wv.getVisibility() == View.VISIBLE) {
-						//wv.setVisibility(View.VISIBLE);
 						AlphaAnimation an = new AlphaAnimation(1.0f, 0.0f);
 						an.setDuration(150);
-						//an.setFillEnabled(true);
-						//an.setFillAfter(true);
 						an.setAnimationListener(new AnimationListener() {
 							@Override public void onAnimationStart(Animation animation) { }
 							@Override public void onAnimationRepeat(Animation animation) { }
@@ -286,6 +286,8 @@ public class Activity_Gif extends Activity {
 					}
 					
 					loadGif();
+					
+					pos = targetPos;
 					
 					if (!finishedDownload) {
 						if (targetPos == 0)	a.findViewById(R.id.gif_precedent).setVisibility(View.GONE);
@@ -528,18 +530,23 @@ public class Activity_Gif extends Activity {
 		
 		MenuItem item = menu.findItem(R.id.menu_share);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			ShareActionProvider mShareActionProvider = (ShareActionProvider) item.getActionProvider();
-			Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-			sharingIntent.setType("text/plain");
-			sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Les Joies du Sysadmin");
-			String shareText = gif.nom + " : " + gif.urlArticle /*+ " via les Joies du Sysadmin sur Android (gratuit) https://play.google.com/store/apps/details?id=com.chteuchteu.lesjoiesdusysadmin"*/;
-			sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareText);
-			mShareActionProvider.setShareIntent(sharingIntent);
+			mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+			updateSharingIntent();
 		}
 		else
 			item.setVisible(false);
 		
 		return true;
+	}
+	
+	@SuppressLint("NewApi")
+	private void updateSharingIntent() {
+		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+		sharingIntent.setType("text/plain");
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Les Joies du Sysadmin");
+		String shareText = gif.nom + " : " + gif.urlArticle /*+ " via les Joies du Sysadmin sur Android (gratuit) https://play.google.com/store/apps/details?id=com.chteuchteu.lesjoiesdusysadmin"*/;
+		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareText);
+		mShareActionProvider.setShareIntent(sharingIntent);
 	}
 	
 	@Override
