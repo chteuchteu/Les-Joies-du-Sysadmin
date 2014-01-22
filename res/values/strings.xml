@@ -12,6 +12,11 @@
 	<string name="menu_notifications">Notifications</string>
 	<string name="menu_share">Partager</string>
 	<string name="menu_clear_cache">Vider le cache</string>
+	<string name="vote">Si vous aimez l\'application, pourriez-vous prendre 1 minute pour la noter sur Google Play ? Merci ! :)</string>
+	<string name="vote_title">Noter l\'application</string>
+	<string name="vote_yes">Oui !</string>
+	<string name="vote_no">Non</string>
+	<string name="vote_notnow">Pas maintenant</string>
 	<string name="cache_emptied_plur">Vidage du cache réussi : # fichiers supprimés</string>
 	<string name="cache_emptied_sing">Vidage du cache réussi : 1 fichier supprimé</string>
 	<string name="cache_emptied_none">Vidage du cache ignoré : le cache est vide</string>

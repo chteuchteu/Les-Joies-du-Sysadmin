@@ -165,12 +165,12 @@ public class Activity_Main extends Activity {
 		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this)
-		.setTitle("Noter l'application")
+		.setTitle(getString(R.string.vote_title))
 		.setIcon(R.drawable.ic_launcher)
-		.setMessage("Si vous aimez l'application, pourriez-vous prendre 1 minute pour noter l'application sur Google Play ? Merci ! :)")
-		.setPositiveButton("Oui !", null)
-		.setNegativeButton("Non", null)
-		.setNeutralButton("Pas maintenant", null);
+		.setMessage(getString(R.string.vote))
+		.setPositiveButton(getString(R.string.vote_yes), null)
+		.setNegativeButton(getString(R.string.vote_no), null)
+		.setNeutralButton(getString(R.string.vote_notnow), null);
 		new AppRate(this)
 		.setCustomDialog(builder)
 		.setMinDaysUntilPrompt(10)
