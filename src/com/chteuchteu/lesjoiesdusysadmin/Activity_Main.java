@@ -482,6 +482,9 @@ public class Activity_Main extends Activity {
 					l.startAnimation(a);
 				}
 				return true;
+			case R.id.menu_clear_cache:
+				Util.clearCache(this);
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}

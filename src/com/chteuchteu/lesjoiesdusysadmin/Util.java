@@ -17,6 +17,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
 
 public final class Util {
 	private Util() { }
@@ -71,8 +73,10 @@ public final class Util {
 	public static String GMTDateToFrench3(String gmtDate) {
 		try {
 			// 2012-06-18 08:47:37 GMT
+			// 2014-01-09 16:57:58 GMT
 			//SimpleDateFormat dfGMT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
-			SimpleDateFormat dfGMT = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss z", Locale.ENGLISH);
+			SimpleDateFormat dfGMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH);
+			Log.v("gmtDate", gmtDate);
 			dfGMT.parse(gmtDate);
 			SimpleDateFormat dfFrench = new SimpleDateFormat("d/MM", Locale.FRANCE);
 			return dfFrench.format(dfGMT.getCalendar().getTime());
@@ -110,6 +114,28 @@ public final class Util {
 		if (needSave)
 			saveGifs(a, l);
 		return needSave;
+	}
+	
+	public static void clearCache(Context c) {
+		String path = Environment.getExternalStorageDirectory().toString() + "/lesJoiesDuSysadmin/";
+		File dir = new File(path);
+		File files[] = dir.listFiles();
+		int crt = 0;
+		if (files != null) {
+			for (File f : files) {
+				f.delete();
+				crt++;
+			}
+		}
+		String txt = "";
+		if (crt == 0)
+			txt = c.getText(R.string.cache_emptied_none).toString();
+		else if (crt == 1)
+			txt = c.getText(R.string.cache_emptied_sing).toString();
+		else
+			txt = c.getText(R.string.cache_emptied_plur).toString().replaceAll("#", crt + "");
+		
+		Toast.makeText(c, txt, Toast.LENGTH_SHORT).show();
 	}
 	
 	public static void removeOldGifs(List<Gif> l) {
