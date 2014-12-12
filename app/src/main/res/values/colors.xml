@@ -1,4 +1,9 @@
 <resources>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
+
+	<color name="mainColor">#00529C</color>
+	<color name="mainColorDarker">#ff00468b</color>
+	<color name="actionBarColor">#ee00529C</color>
+	<color name="statusBarColor">#ee003b76</color>
 </resources>

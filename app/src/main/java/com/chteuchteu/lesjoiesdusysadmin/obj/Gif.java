@@ -1,4 +1,4 @@
-package com.chteuchteu.lesjoiesdusysadmin;
+package com.chteuchteu.lesjoiesdusysadmin.obj;
 
 public class Gif {
 	public String nom = "";

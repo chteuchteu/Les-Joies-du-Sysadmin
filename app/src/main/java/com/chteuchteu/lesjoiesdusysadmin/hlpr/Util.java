@@ -1,4 +1,4 @@
-package com.chteuchteu.lesjoiesdusysadmin;
+package com.chteuchteu.lesjoiesdusysadmin.hlpr;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -8,14 +8,20 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.os.Environment;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.chteuchteu.lesjoiesdusysadmin.obj.Gif;
+import com.chteuchteu.lesjoiesdusysadmin.R;
 import com.tjeannin.apprate.AppRate;
 
 import org.jsoup.Jsoup;
@@ -291,13 +297,6 @@ public final class Util {
 				.init();
 	}
 
-	public static int getStatusBarHeight(Context context) {
-		int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0)
-			return context.getResources().getDimensionPixelSize(resourceId);
-		return 0;
-	}
-
 	public static void setTransition(Activity activity, String level) {
 		if (level.equals("rightToLeft"))
 			activity.overridePendingTransition(R.anim.deeper_in, R.anim.deeper_out);
@@ -306,18 +305,33 @@ public final class Util {
 	}
 
 	public static class Fonts {
-		public static void setFont(Context context, ViewGroup g, String font) {
-			Typeface mFont = Typeface.createFromAsset(context.getAssets(), font);
+		public enum CustomFont {
+			RobotoCondensed_Light("RobotoCondensed-Light.ttf"),
+			RobotoCondensed_Regular("RobotoCondensed-Regular.ttf"),
+			Futura("Futura.ttf");
+
+			private String resFile;
+			CustomFont(String resFile) { this.resFile = resFile; }
+			public String getResFile() { return this.resFile; }
+		}
+
+		public static void setFont(Context context, ViewGroup g, CustomFont font) {
+			Typeface mFont = Typeface.createFromAsset(context.getAssets(), font.getResFile());
 			setFont(g, mFont);
 		}
+		public static void setFont(Context context, View v, CustomFont font) {
+			Typeface mFont = Typeface.createFromAsset(context.getAssets(), font.getResFile());
+			((TextView) v).setTypeface(mFont);
+		}
+
 		public static void setFont(ViewGroup group, Typeface font) {
 			int count = group.getChildCount();
 			View v;
 			for (int i = 0; i < count; i++) {
 				v = group.getChildAt(i);
-				if (v instanceof TextView || v instanceof EditText || v instanceof Button) {
+				if (v instanceof TextView || v instanceof EditText || v instanceof Button)
 					((TextView) v).setTypeface(font);
-				} else if (v instanceof ViewGroup)
+				else if (v instanceof ViewGroup)
 					setFont((ViewGroup) v, font);
 			}
 		}

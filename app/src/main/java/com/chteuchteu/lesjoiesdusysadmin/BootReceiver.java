@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
+import com.chteuchteu.lesjoiesdusysadmin.hlpr.Util;
+
 public class BootReceiver extends BroadcastReceiver {
 	
 	public void onReceive(Context context, Intent intent) {

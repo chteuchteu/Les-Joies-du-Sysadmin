@@ -18,6 +18,9 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.NotificationCompat;
 
+import com.chteuchteu.lesjoiesdusysadmin.hlpr.Util;
+import com.chteuchteu.lesjoiesdusysadmin.obj.Gif;
+import com.chteuchteu.lesjoiesdusysadmin.ui.Activity_Main;
 import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Post;
 import com.tumblr.jumblr.types.TextPost;
