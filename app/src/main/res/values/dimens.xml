@@ -8,6 +8,6 @@
     
     <dimen name="gif_list_fontsize1">16sp</dimen>
     <dimen name="gif_list_fontsize2">14sp</dimen>
-    <dimen name="header_title_fontsize">26sp</dimen>
+    <dimen name="header_title_fontsize">23sp</dimen>
 
 </resources>

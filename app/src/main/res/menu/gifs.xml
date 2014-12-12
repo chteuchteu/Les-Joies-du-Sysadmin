@@ -9,7 +9,7 @@
         android:title="@string/open_site"/>
     <item
         android:id="@+id/menu_share"
-        android:actionProviderClass="android.widget.ShareActionProvider"
+		android:icon="@drawable/ic_action_social_share"
 		app:showAsAction="ifRoom"
         android:title="@string/menu_share"/>
     <item

@@ -5,23 +5,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.os.Environment;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.chteuchteu.lesjoiesdusysadmin.obj.Gif;
 import com.chteuchteu.lesjoiesdusysadmin.R;
+import com.chteuchteu.lesjoiesdusysadmin.obj.Gif;
 import com.tjeannin.apprate.AppRate;
 
 import org.jsoup.Jsoup;
@@ -35,20 +30,9 @@ import java.util.List;
 import java.util.Locale;
 
 public final class Util {
-	private Util() { }
-	
-	@SuppressLint("InlinedApi")
-	public static int getActionBarHeight(Context c) {
-		final TypedArray styledAttributes = c.getTheme().obtainStyledAttributes(
-				new int[]{android.R.attr.actionBarSize});
-		int height = (int) styledAttributes.getDimension(0, 0);
-		styledAttributes.recycle();
-		return height;
-	}
-	
 	public static List<Gif> getGifs(Activity a) {
 		String[] sg = Util.getPref(a, "gifs").split(";;");
-		List<Gif> li = new ArrayList<Gif>();
+		List<Gif> li = new ArrayList<>();
 		for (String s : sg) {
 			Gif g = new Gif();
 			if (s.split("::").length > 0)	g.nom = s.split("::")[0];
@@ -158,7 +142,7 @@ public final class Util {
 			File dir = new File(path);
 			File files[] = dir.listFiles();
 			if (files != null) {
-				List<File> toBeDeleted = new ArrayList<File>();
+				List<File> toBeDeleted = new ArrayList<>();
 				for (File f : files) {
 					boolean shouldBeDeleted = true;
 					int max = 15;
@@ -206,7 +190,7 @@ public final class Util {
 			SharedPreferences prefs = a.getSharedPreferences("user_pref", Context.MODE_PRIVATE);
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString(key, value);
-			editor.commit();
+			editor.apply();
 		}
 	}
 	
@@ -214,7 +198,7 @@ public final class Util {
 		SharedPreferences prefs = a.getSharedPreferences("user_pref", Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.remove(key);
-		editor.commit();
+		editor.apply();
 	}
 	
 	@SuppressLint("SimpleDateFormat")
@@ -308,7 +292,8 @@ public final class Util {
 		public enum CustomFont {
 			RobotoCondensed_Light("RobotoCondensed-Light.ttf"),
 			RobotoCondensed_Regular("RobotoCondensed-Regular.ttf"),
-			Futura("Futura.ttf");
+			Roboto_Regular("Roboto-Regular.ttf"),
+			Futura("Futura.TTF");
 
 			private String resFile;
 			CustomFont(String resFile) { this.resFile = resFile; }

@@ -35,10 +35,6 @@
 				android:paddingLeft="30dp"
 				android:paddingRight="10dp"
 				android:paddingTop="10dp"
-				android:shadowColor="#000000"
-				android:shadowDx="0"
-				android:shadowDy="2"
-				android:shadowRadius="2"
 				android:text="&lt; PREC."
 				android:textColor="#ffffff"
 				android:textSize="20sp" />
@@ -58,10 +54,6 @@
 				android:paddingLeft="10dp"
 				android:paddingRight="30dp"
 				android:paddingTop="10dp"
-				android:shadowColor="#000000"
-				android:shadowDx="0"
-				android:shadowDy="2"
-				android:shadowRadius="2"
 				android:text="SUIV. >"
 				android:textColor="#ffffff"
 				android:textSize="20sp" />

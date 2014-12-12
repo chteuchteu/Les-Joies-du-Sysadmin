@@ -22,7 +22,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,7 +51,6 @@ public class Activity_Gif extends ActionBarActivity {
 	public static int			SWITCH_PREVIOUS = 0;
 	
 	public static boolean		fromWeb;
-	public ShareActionProvider mShareActionProvider;
 	
 	@SuppressLint({ "SetJavaScriptEnabled", "InlinedApi" })
 	@Override
@@ -150,9 +148,9 @@ public class Activity_Gif extends ActionBarActivity {
 		});
 		findViewById(R.id.onclick_catcher).setOnClickListener(new OnClickListener() { @Override public void onClick(View v) { toggleTexts(); } });
 		
-		Util.Fonts.setFont(this, findViewById(R.id.header_nom), Util.Fonts.CustomFont.RobotoCondensed_Light);
-		Util.Fonts.setFont(this, findViewById(R.id.gif_precedent), Util.Fonts.CustomFont.RobotoCondensed_Regular);
-		Util.Fonts.setFont(this, findViewById(R.id.gif_suivant), Util.Fonts.CustomFont.RobotoCondensed_Regular);
+		Util.Fonts.setFont(this, findViewById(R.id.header_nom), Util.Fonts.CustomFont.Roboto_Regular);
+		Util.Fonts.setFont(this, findViewById(R.id.gif_precedent), Util.Fonts.CustomFont.Roboto_Regular);
+		Util.Fonts.setFont(this, findViewById(R.id.gif_suivant), Util.Fonts.CustomFont.Roboto_Regular);
 		
 		if (gif == null && old_gif != null)
 			gif = old_gif;
@@ -235,8 +233,8 @@ public class Activity_Gif extends ActionBarActivity {
 				
 				if (targetPos >= 0 && targetPos < Activity_Main.gifs.size()) {
 					gif = Activity_Main.gifs.get(targetPos);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-						updateSharingIntent();
+					//if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+					//	updateSharingIntent();
 					finishedDownload = false;
 					loaded = false;
 					
@@ -361,26 +359,7 @@ public class Activity_Gif extends ActionBarActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.gifs, menu);
 		
-		MenuItem item = menu.findItem(R.id.menu_share);
-		/*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			mShareActionProvider = (ShareActionProvider) item.getActionProvider();
-			updateSharingIntent();
-		}
-		else
-			item.setVisible(false);*/
-		item.setVisible(false);
-		
 		return true;
-	}
-	
-	@SuppressLint("NewApi")
-	private void updateSharingIntent() {
-		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-		sharingIntent.setType("text/plain");
-		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Les Joies du Sysadmin");
-		String shareText = gif.nom + " : " + gif.urlArticle /*+ " via les Joies du Sysadmin sur Android (gratuit) https://play.google.com/store/apps/details?id=com.chteuchteu.lesjoiesdusysadmin"*/;
-		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareText);
-		mShareActionProvider.setShareIntent(sharingIntent);
 	}
 	
 	@Override
@@ -416,6 +395,13 @@ public class Activity_Gif extends ActionBarActivity {
 			case R.id.menu_openwebsite:
 				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(gif.urlArticle));
 				startActivity(browserIntent);
+				return true;
+			case R.id.menu_share:
+				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+				sharingIntent.setType("text/plain");
+				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Les Joies du Sysadmin");
+				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, gif.nom + " : " + gif.urlArticle);
+				startActivity(Intent.createChooser(sharingIntent, "Partager via"));
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

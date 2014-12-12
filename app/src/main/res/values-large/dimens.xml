@@ -7,6 +7,6 @@
     
     <dimen name="gif_list_fontsize1">19sp</dimen>
     <dimen name="gif_list_fontsize2">16sp</dimen>
-    <dimen name="header_title_fontsize">36sp</dimen>
+    <dimen name="header_title_fontsize">30sp</dimen>
 
 </resources>
