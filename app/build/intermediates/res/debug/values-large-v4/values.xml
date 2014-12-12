@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/E:/Dropbox/Programmation/Android/LesJoiesDuSysadmin/app/src/main/res/values-large/dimens.xml -->
+    <eat-comment/>
+    <dimen name="activity_horizontal_margin">25dp</dimen>
+    <dimen name="activity_vertical_margin">25dp</dimen>
+    <dimen name="gif_list_fontsize1">19sp</dimen>
+    <dimen name="gif_list_fontsize2">16sp</dimen>
+    <dimen name="header_title_fontsize">36sp</dimen>
+    <dimen name="listview_bottom_margin">12dp</dimen>
+    <dimen name="listview_top_margin">10dp</dimen>
+</resources>

@@ -1,0 +1,6 @@
+E:\Dropbox\Programmation\Android\LesJoiesDuSysadmin\app\build\intermediates\classes\debug
+E:\Dropbox\Programmation\Android\LesJoiesDuSysadmin\app\build\intermediates\pre-dexed\debug\AppRate_1.1-77f24587c946d1312713ae2ba543f94efc4b2d87.jar
+E:\Dropbox\Programmation\Android\LesJoiesDuSysadmin\app\build\intermediates\pre-dexed\debug\jsoup-1.7.2-505ae99171cf600373610e9e0a01878bb837c1d9.jar
+E:\Dropbox\Programmation\Android\LesJoiesDuSysadmin\app\build\intermediates\pre-dexed\debug\support-v4-19.1.0-4733edd630a5533b03df682c598a0f264fc866f8.jar
+E:\Dropbox\Programmation\Android\LesJoiesDuSysadmin\app\build\intermediates\pre-dexed\debug\jumblr-0.0.6-jar-with-dependencies-eaac9bc3501a87fadebe66274771d7845981a802.jar
+E:\Dropbox\Programmation\Android\LesJoiesDuSysadmin\app\build\intermediates\pre-dexed\debug\libGoogleAnalyticsServices-55e82584237926da8cce8c09631645aaf776d181.jar

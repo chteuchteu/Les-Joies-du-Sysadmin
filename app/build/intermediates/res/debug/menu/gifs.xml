@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_openwebsite"
+        android:icon="@drawable/location_web_site"
+        android:showAsAction="ifRoom"
+        android:title="@string/open_site"/>
+    <item
+        android:id="@+id/menu_share"
+        android:actionProviderClass="android.widget.ShareActionProvider"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_share"/>
+    <item
+        android:id="@+id/menu_refresh"
+        android:icon="@drawable/navigation_refresh_dark"
+        android:showAsAction="ifRoom"
+        android:title="@string/refresh"/>
+
+</menu><!-- From: file:/E:/Dropbox/Programmation/Android/LesJoiesDuSysadmin/app/src/main/res/menu/gifs.xml -->
