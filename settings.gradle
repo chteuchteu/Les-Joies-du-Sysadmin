@@ -1,1 +1,3 @@
 include ':app'
+include ':gifapplicationlibrary'
+project(':gifapplicationlibrary').projectDir=new File('../gifapplicationlibrary')
