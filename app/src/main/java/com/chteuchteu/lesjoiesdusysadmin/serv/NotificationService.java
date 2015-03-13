@@ -1,4 +1,4 @@
-package com.chteuchteu.lesjoiesdusysadmin;
+package com.chteuchteu.lesjoiesdusysadmin.serv;
 
 import android.app.Service;
 import android.content.Intent;
@@ -8,6 +8,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
 import com.chteuchteu.gifapplicationlibrary.async.NotificationsPollTask;
+import com.chteuchteu.lesjoiesdusysadmin.GifFoo;
 
 public class NotificationService extends Service {
 	private WakeLock mWakeLock;

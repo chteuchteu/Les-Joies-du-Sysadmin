@@ -6,6 +6,7 @@ import com.chteuchteu.gifapplicationlibrary.i.IDataSourceParser;
 import com.chteuchteu.gifapplicationlibrary.obj.Gif;
 import com.chteuchteu.gifapplicationlibrary.obj.GifApplicationBundle;
 import com.chteuchteu.lesjoiesdusysadmin.hlpr.FeedParser;
+import com.chteuchteu.lesjoiesdusysadmin.serv.NotificationService;
 import com.chteuchteu.lesjoiesdusysadmin.ui.Activity_Main;
 
 import java.util.List;
@@ -23,7 +24,8 @@ public class GifFoo {
                 },
                 "lesJoiesDuSysadmin",
                 context.getString(R.string.about),
-                Activity_Main.class
+                Activity_Main.class,
+                NotificationService.class
         );
     }
 }

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.SystemClock;
 
 import com.chteuchteu.gifapplicationlibrary.hlpr.MainUtil;
-import com.chteuchteu.lesjoiesdusysadmin.NotificationService;
 
 public class BootReceiver extends BroadcastReceiver {
 	

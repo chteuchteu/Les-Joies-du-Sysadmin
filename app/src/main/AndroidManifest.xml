@@ -34,7 +34,7 @@
         </receiver>
 
         <service
-            android:name=".NotificationService"
+            android:name=".serv.NotificationService"
             android:enabled="true" />
     </application>
 
