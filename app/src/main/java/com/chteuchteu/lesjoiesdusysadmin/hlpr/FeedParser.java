@@ -7,9 +7,14 @@ import com.tumblr.jumblr.types.Blog;
 import com.tumblr.jumblr.types.Post;
 import com.tumblr.jumblr.types.TextPost;
 
+import org.jsoup.Jsoup;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class FeedParser {
@@ -31,12 +36,12 @@ public class FeedParser {
 				for (Post p : posts) {
 					TextPost tp = (TextPost) p;
 					Gif gif = new Gif();
-                    gif.setDate(Util.GMTDateToFrench3(tp.getDateGMT()));
+                    gif.setDate(GMTDateToFrench3(tp.getDateGMT()));
 					gif.setName(tp.getTitle());
 					gif.setArticleUrl(tp.getPostUrl());
 					// <p><p class="c1"><img alt="image" src="http://i.imgur.com/49DLfGd.gif"/></p>
-					gif.setGifUrl(Util.getSrcAttribute(tp.getBody()));
-					if (gif.isValid() && Util.getGifFromGifUrl(l, gif.getGifUrl()) == null)
+					gif.setGifUrl(getSrcAttribute(tp.getBody()));
+					if (gif.isValid() && getGifFromGifUrl(l, gif.getGifUrl()) == null)
 						l.add(gif);
 					progress++;
 					int percentage = progress*100/nbPosts;
@@ -52,4 +57,38 @@ public class FeedParser {
 
         return l;
 	}
+
+    public static String getSrcAttribute(String html) {
+        org.jsoup.nodes.Document doc = Jsoup.parse(html);
+        // jsoup : *= : contient la valeur (certains gifs sont sous la forme image.gif?3848483)
+        //org.jsoup.nodes.Element img = doc.select("img[src*=.gif]").first();
+        org.jsoup.nodes.Element img = doc.select("img[src]").first();
+        if (img != null)
+            return img.attr("src");
+        return "";
+    }
+
+    public static String GMTDateToFrench3(String gmtDate) {
+        try {
+            // 2012-06-18 08:47:37 GMT
+            // 2014-01-09 16:57:58 GMT
+            SimpleDateFormat dfGMT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH);
+            dfGMT.parse(gmtDate);
+            SimpleDateFormat dfFrench = new SimpleDateFormat("d/MM", Locale.FRANCE);
+            return dfFrench.format(dfGMT.getCalendar().getTime());
+        } catch (ParseException ex) {
+            ex.printStackTrace();
+        }
+        return "";
+    }
+
+    public static Gif getGifFromGifUrl(List<Gif> l, String u) {
+        if (l != null) {
+            for (Gif g : l) {
+                if (g.getGifUrl().equals(u))
+                    return g;
+            }
+        }
+        return null;
+    }
 }
