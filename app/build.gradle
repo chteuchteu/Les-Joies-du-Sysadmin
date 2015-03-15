@@ -20,8 +20,7 @@ dependencies {
     compile 'com.android.support:support-v4:21.0.3'
     compile "com.android.support:appcompat-v7:21.0.3"
     compile files('libs/AppRate_1.1.jar')
-    compile files('libs/jsoup-1.7.2.jar')
+    compile 'org.jsoup:jsoup:1.8.1'
     compile files('libs/jumblr-0.0.6-jar-with-dependencies.jar')
-    compile files('libs/systembartint-1.0.4.jar')
     compile project(':gifapplicationlibrary')
 }
